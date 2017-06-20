@@ -1,2 +1,2 @@
-# Statistical_Inference_Final_Project
+# Statistical Inference Final Project
 Statistical Inference W4702 Final Project
