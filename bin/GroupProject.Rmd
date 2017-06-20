@@ -1,0 +1,443 @@
+---
+title: "Statistical Inference W4702 Final Project"
+author: "Christopher Rusnak, Alimu Mijiti, Christine Lee, Maura Fitzgerald"
+date: "December 15, 2015"
+output: 
+  pdf_document:
+    toc: yes
+---
+
+```{r knitr_options, include=FALSE}
+package_list <- c("knitr","ggplot2","RTextTools",
+                  "leaflet","maps","data.table",
+                  "dplyr","ggmap","reshape2",
+                  "MASS","rpart","glmnet","gam")
+for(i in 1:length(package_list)){
+  if(!(package_list[i] %in% installed.packages())){
+    install.packages(package_list[i])
+  } 
+}
+
+library(knitr)
+library(ggplot2)
+library(RTextTools)
+library(leaflet)
+library(maps)
+library(data.table)
+library(dplyr)
+library(ggmap)
+library(reshape2)
+library(MASS)
+library(rpart)
+library(glmnet)
+library(gam)
+opts_chunk$set(tidy.opts=list(width.cutoff=50))
+```
+
+## Introduction
+
+### Introduction to our project - Why bother to look at airbnb data?
+
+**Motivation behind studying airbnb data**
+
+In recent years, we come across discussions in the media and
+in our communities of how the use of various sharing economy platforms such as Uber and Airbnb have become more prevalent and might have positive or possibly less positive impact on how we operate our
+lives.
+
+We ourselves may be avid users of some of these platforms. For example, as a potential guest or owner of an Airbnb listing, one might be interested in determining whether listing prices are fair given the property, and in particular, what variables might be the most meaningful predictors of listing price? If you are an airbnb host, you might wonder which variables can be the best predictors of whether you achieve the "superhost" status?
+
+** Data set requirements**
+
+Further, we had in mind some criteria for selecting an interesting set of data to explore. We feel airbnb's listing data fits our search- - comprehensive data set with 94 original variables and over 30,000 observations for NYC area listings; - contains a rich set of variables, including a range of numerical and categorical variables; - the data is recently compiled in September,2015 by the author of insideairbnb.com; - the data contains interesting information on trends in properties and communities in the New York area.
+
+### Project questions we wish to explore with statistical modeling techniques
+
+Some questions or insights which we hope to address in this project include:
+
+- Exploring the relationships between various predictors and Y variables price, or superhost status -- how strong are these relationships and do these appear to be linear or non-linear relationships?
+- Building a classification model and identifying variables for predicting whether an airbnb host is likely to be classified as a superhost.
+- Building a GAM model and identifying the best predictors for predicting the Y variable as price.
+
+
+## Dataset
+
+### Data Source
+
+We used publicly available Airbnb listings data from http://insideairbnb.com/. We limited the scope of our analysis to New York City. The original dataset contained 94 information fields for 30,480 listings in the NYC area.
+
+### Prep and Cleaning
+
+
+```{r test-main, child='datacleaningtext.Rmd'}
+```
+
+## EDA
+
+```{r, child='chris_eda.Rmd'}
+```
+
+```{r, child='maura_kmeans.Rmd'}
+```
+
+## Model Results and Diagnostics
+
+###1)ManWhitneyWilcox test
+
+```{r, child='chris_mann.Rmd'}
+```
+
+
+###2) Classification for predicting y:superhost and neighborhood
+
+###3) ANOVA analysis
+
+```{r, child='chris_anova.Rmd'}
+```
+
+###4) Lasso regression for predicting y:price
+
+###5) Non-linear models: splines + GAM 
+
+## Findings Summary: Comparing the models
+
+
+## Conclusions
+
+# Appendix
+
+## R Code
+
+### General Data Exploration
+
+### Correlation of each Variable with Price
+
+
+
+### Data Manipulation and Cleaning
+
+## General Data Cleaning
+
+# Variables Excluded
+
+Because image and text analysis are out of scope for this project, the following variables in the original dataset were not considered for this analysis:
+
+```{r}
+drop.1 <- c("listing_url","summary","description"
+,"notes","thumbnail_url","picture_url","host_url","host_thumbnail_url"
+,"name","space","neighborhood_overview","transit","medium_url","xl_picture_url"
+,"host_about","host_picture_url")
+
+print(drop.1)
+```
+
+Some variables were excluded due to having little or no information in New York listings:
+
+```{r}
+drop.2 <- c("jurisdiction_names","requires_license",
+            "experiences_offered" ,"square_feet","license")
+print(drop.2)
+
+```
+
+Others were redundant or not relevant for this analysis.
+
+```{r}
+drop.3 <- c("scrape_id","host_location",
+"neighbourhood","smart_location",
+"country","weekly_price",
+"calendar_last_scraped","availability_30",
+"availability_365","last_review",
+"city","zipcode",
+"host_neighbourhood","last_scraped",
+"street","market",
+"country_code","calendar_updated",
+"monthly_price","has_availability",
+"availability_90","first_review",
+"host_listings_count","state",
+"host_name")
+```
+
+```{r}
+# Read in Airbnb listings data
+listings <- read.csv("listings.csv", stringsAsFactors = FALSE)
+
+# Create Subset for Analysis
+drops <- c("listing_url", "scrape_id", "last_scraped",
+"name", "summary", "space", "description", "neighborhood_overview",
+"notes", "transit", "thumbnail_url", "medium_url",
+"picture_url", "xl_picture_url", "host_url", "host_location",
+"host_about", "host_thumbnail_url", "host_picture_url",
+"street", "neighbourhood", "market", "smart_location",
+"country_code", "country", "calendar_updated",
+"weekly_price", "monthly_price", "calendar_last_scraped","has_availability", "availability_30", "availability_90",
+"availability_365", "first_review", "last_review",
+"jurisdiction_names", "requires_license", "amenities",
+"host_verifications", "license", "experiences_offered",
+"host_listings_count", "city", "state", "zipcode",
+"host_name", "host_neighbourhood", "square_feet")
+
+air.bnb.dataset <- listings[,!(names(listings) %in% drops)]
+
+# Identify Factor Variables
+air.bnb.dataset$room_type <- (as.factor(air.bnb.dataset$room_type))
+air.bnb.dataset$is_location_exact <- (as.factor(air.bnb.dataset$is_location_exact))
+air.bnb.dataset$property_type <- (as.factor(air.bnb.dataset$property_type))
+air.bnb.dataset$bed_type <- (as.factor(air.bnb.dataset$bed_type))
+air.bnb.dataset$host_response_time <- (as.factor(air.bnb.dataset$host_response_time))
+air.bnb.dataset$host_is_superhost <- (as.factor(air.bnb.dataset$host_is_superhost))
+air.bnb.dataset$host_identity_verified <-
+(as.factor(air.bnb.dataset$host_identity_verified))
+air.bnb.dataset$host_has_profile_pic <- (as.factor(air.bnb.dataset$host_has_profile_pic))
+air.bnb.dataset$neighbourhood_cleansed <-
+(as.factor(air.bnb.dataset$neighbourhood_cleansed))
+air.bnb.dataset$neighbourhood_group_cleansed <-
+(as.factor(air.bnb.dataset$neighbourhood_group_cleansed))
+air.bnb.dataset$instant_bookable <- (as.factor(air.bnb.dataset$instant_bookable))
+air.bnb.dataset$cancellation_policy <- (as.factor(air.bnb.dataset$cancellation_policy))
+air.bnb.dataset$require_guest_profile_picture <-
+(as.factor(air.bnb.dataset$require_guest_profile_picture))
+air.bnb.dataset$require_guest_phone_verification <-
+(as.factor(air.bnb.dataset$require_guest_phone_verification))
+
+# Dates
+air.bnb.dataset$host_since <- (as.Date(air.bnb.dataset$host_since))
+
+# Numbers with formatting
+air.bnb.dataset$host_response_rate <- as.numeric(gsub("[[:punct:]]",
+"", listings$host_response_rate))
+air.bnb.dataset$host_acceptance_rate <- as.numeric(gsub("[[:punct:]]",
+"", listings$host_acceptance_rate))
+air.bnb.dataset$price <- gsub("[[:punct:]]", "", listings$price)
+air.bnb.dataset$price <- as.numeric(air.bnb.dataset$price)/100
+air.bnb.dataset$security_deposit <- as.numeric(gsub("[[:punct:]]",
+"", listings$security_deposit))/100
+air.bnb.dataset$cleaning_fee <- as.numeric(gsub("[[:punct:]]",
+"", listings$cleaning_fee))/100
+air.bnb.dataset$extra_people <- as.numeric(gsub("[[:punct:]]","", listings$extra_people))/100
+
+# Deal with NAs in optional costs
+air.bnb.dataset$cleaning_fee[is.na(air.bnb.dataset$cleaning_fee)] <- 0
+air.bnb.dataset$security_deposit[is.na(air.bnb.dataset$security_deposit)] <- 0
+air.bnb.dataset$extra_people[is.na(air.bnb.dataset$extra_people)] <- 0
+```
+
+#### Number of hosts in a listing
+
+```{r}
+# Number of hosts in a listing
+
+find.all.hosts <- function(host_names){
+  # Compute total number of hosts in a listing
+  n.hosts <- 0
+  
+  # Find number of "&" or " And " strings
+  n.amp <- length(grep("&", host_names))
+  n.and <- length(grep(" And ", host_names))
+  if(n.amp > 0 | n.and > 0){
+    # If there is a match, then there are at least two hosts per listing
+    # More hosts may appear in a comma-separated list
+    # Find the number of commas as a proxy for the remaining hosts
+    n.commas <- attr(regexpr(", ",host_names),"match.length")
+    if(n.commas > 0){
+      n.hosts <- 2 + n.commas
+    }
+    else{
+      n.hosts <- 2
+    }
+  }
+  else{
+    n.hosts <- 1
+  }
+  return(n.hosts)
+}
+
+
+
+air.bnb.dataset$number.of.hosts <- sapply(air.bnb.dataset$host_name,FUN = find.all.hosts) 
+```
+
+#### Amenities and Host Verifications
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
+# Amenities and Host Verifications
+
+
+# Turn spaces into periods and commas into spaces in amenities
+listings$amenities <- gsub(" ", ".", listings$amenities)
+listings$amenities <- gsub(",", " ", listings$amenities)
+
+# Create Bags of words
+hostVers <- create_matrix(listings$host_verifications, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+
+amenities <- create_matrix(listings$amenities, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+
+
+# Join to dataset
+hVers <- (as.data.frame(as.matrix(hostVers)))
+names(hVers) <- paste('Host.Ver.',names(hVers), sep='')
+
+amen <- (as.data.frame(as.matrix(amenities)))
+names(amen) <- paste('Amenities.',names(amen), sep='')
+
+air.bnb.dataset <- cbind(air.bnb.dataset, amen, hVers)
+```
+
+#### Distance Calculation
+```{r}
+# This is the R code for calculating the distance to the closest subway station.
+# Data Source: 
+# subway stations:https://data.ny.gov/Transportation/NYC-Transit-Subway-Entrance-And-Exit-Data/i9wp-a4ja
+# airbnb listing: http://insideairbnb.com/get-the-data.html
+
+
+# Based on: https://www.r-bloggers.com/great-circle-distance-calculations-in-r/ and https://github.com/caesar0301/omniR/blob/master/R/gcd.R 
+
+# Convert degrees to radians
+deg2rad <- function(deg){
+  return(deg*pi/180)
+}
+
+# Calculates the geodesic distance between two points specified by radian latitude/longitude using
+# Vincenty inverse formula for ellipsoids (vif)
+gcd.vif.customized <- function(long1, lat1, long2, lat2) {
+
+
+
+# Convert degrees to radians
+  long1 <- deg2rad(long1)
+  lat1 <- deg2rad(lat1)
+  long2 <- deg2rad(long2)
+  lat2 <- deg2rad(lat2)
+
+
+ 
+  # WGS-84 ellipsoid parameters
+  a <- 6378137         # length of major axis of the ellipsoid (radius at equator)
+  b <- 6356752.314245  # length of minor axis of the ellipsoid (radius at the poles)
+  f <- 1/298.257223563 # flattening of the ellipsoid
+ 
+  L <- long2-long1 # difference in longitude
+  U1 <- atan((1-f) * tan(lat1)) # reduced latitude
+  U2 <- atan((1-f) * tan(lat2)) # reduced latitude
+  sinU1 <- sin(U1)
+  cosU1 <- cos(U1)
+  sinU2 <- sin(U2)
+  cosU2 <- cos(U2)
+ 
+  cosSqAlpha <- NULL
+  sinSigma <- NULL
+  cosSigma <- NULL
+  cos2SigmaM <- NULL
+  sigma <- NULL
+ 
+  lambda <- L
+  lambdaP <- 0
+  iterLimit <- 100
+  while (abs(lambda-lambdaP) > 1e-12 & iterLimit>0) {
+    sinLambda <- sin(lambda)
+    cosLambda <- cos(lambda)
+    sinSigma <- sqrt( (cosU2*sinLambda) * (cosU2*sinLambda) +
+                      (cosU1*sinU2-sinU1*cosU2*cosLambda) * (cosU1*sinU2-sinU1*cosU2*cosLambda) )
+    if (sinSigma==0) return(0)  # Co-incident points
+    cosSigma <- sinU1*sinU2 + cosU1*cosU2*cosLambda
+    sigma <- atan2(sinSigma, cosSigma)
+    sinAlpha <- cosU1 * cosU2 * sinLambda / sinSigma
+    cosSqAlpha <- 1 - sinAlpha*sinAlpha
+    cos2SigmaM <- cosSigma - 2*sinU1*sinU2/cosSqAlpha
+    if (is.na(cos2SigmaM)) cos2SigmaM <- 0  # Equatorial line: cosSqAlpha=0
+    C <- f/16*cosSqAlpha*(4+f*(4-3*cosSqAlpha))
+    lambdaP <- lambda
+    lambda <- L + (1-C) * f * sinAlpha *
+              (sigma + C*sinSigma*(cos2SigmaM+C*cosSigma*(-1+2*cos2SigmaM*cos2SigmaM)))
+    iterLimit <- iterLimit - 1
+  }
+  if (iterLimit==0) return(NA)  # formula failed to converge
+  uSq <- cosSqAlpha * (a*a - b*b) / (b*b)
+  A <- 1 + uSq/16384*(4096+uSq*(-768+uSq*(320-175*uSq)))
+  B <- uSq/1024 * (256+uSq*(-128+uSq*(74-47*uSq)))
+  deltaSigma = B*sinSigma*(cos2SigmaM+B/4*(cosSigma*(-1+2*cos2SigmaM^2) -
+                                      B/6*cos2SigmaM*(-3+4*sinSigma^2)*(-3+4*cos2SigmaM^2)))
+  s <- b*A*(sigma-deltaSigma) 
+ 
+  return(s) # Distance in meters
+}
+
+
+distance_vector_function <- function(listing_longitude,
+                                     listing_latitude,
+                                     station_longitude,
+                                     station_latitude){
+  # Calculate the shortest distance between a listing and a subway station
+  n.list.lat <- length(listing_latitude)
+  n.list.long <- length(listing_longitude)
+  stopifnot(n.list.lat == n.list.long)
+  
+  n.station.lat <- length(station_latitude)
+  n.station.long <- length(station_longitude)
+  stopifnot(n.station.lat == n.station.long)
+  
+  # Stores distances between a given listing and all stations
+  distance_temp <- rep(0,n.station.lat)
+  # Stores min distance from a listing to a station
+  distance_vector <- rep(0,n.list.lat)
+  
+  # Loop through all listings
+  for(i in 1:length(distance_vector)){
+    # Loop through all stations
+    for (j in 1:dim(station)[1]){
+      # Calculate distance between listing and station
+      distance_temp[j] <- gcd.vif.customized(listing_longitude[i],
+                                          listing_latitude[i],
+                                          station_longitude[j],
+                                          station_latitude[j])
+      }
+    
+    # Preserve distance to station that is the shortest
+    distance_vector[i] <- min(distance_temp)
+    }
+  return(distance_vector)
+}
+
+
+
+listing_location=listings[,c("latitude","longitude")]
+row_station <- read.csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+station=row_station[,4:5]
+
+distances <- distance_vector_function(air.bnb.dataset$longitude,
+                                     air.bnb.dataset$latitude,
+                                     row_station$Station.Longitude,
+                                     row_station$Station.Latitude)
+
+```
+
+```{r test-main, child='datacleaningcode.Rmd'}
+```
+
+### EDA
+
+```{r, child='chris_eda_code.Rmd'}
+```
+
+```{r, child='maura_kmeans_code.Rmd'}
+```
+
+### Models
+
+```{r, child='chris_mann_code.Rmd'}
+```
+
+```{r, child='chris_anova_code.Rmd'}
+```
+
+```{r, child='lasso_christine.Rmd'}
+```
+
+## Tables
+
+### Neighborhood Clusters
+
+#### Number of listings by neighbohood and cluster
+
+```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+kable(table(airbnb$neighbourhood_cleansed, gsub("cluster.", "", airbnb$neighborhood_cluster)))
+```
