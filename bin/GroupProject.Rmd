@@ -174,7 +174,7 @@ drops <- c("listing_url", "scrape_id", "last_scraped",
 "jurisdiction_names", "requires_license", "amenities",
 "host_verifications", "license", "experiences_offered",
 "host_listings_count", "city", "state", "zipcode",
-"host_name", "host_neighbourhood", "square_feet")
+ "host_neighbourhood", "square_feet")
 
 air.bnb.dataset <- listings[,!(names(listings) %in% drops)]
 
@@ -203,17 +203,30 @@ air.bnb.dataset$require_guest_phone_verification <-
 air.bnb.dataset$host_since <- (as.Date(air.bnb.dataset$host_since))
 
 # Numbers with formatting
-air.bnb.dataset$host_response_rate <- as.numeric(gsub("[[:punct:]]",
-"", listings$host_response_rate))
-air.bnb.dataset$host_acceptance_rate <- as.numeric(gsub("[[:punct:]]",
-"", listings$host_acceptance_rate))
-air.bnb.dataset$price <- gsub("[[:punct:]]", "", listings$price)
+remove.punct.from.num <- function(num_field){
+  # Remove punctuation from numbers with formatting (ex. "86%")
+  temp <- gsub("[[:punct:]]","", num_field)
+  if(temp == "NA"){
+    return(NA)
+  }
+  else{
+    return(as.numeric(temp))  
+  }
+}
+
+air.bnb.dataset$host_response_rate <- sapply(air.bnb.dataset$host_response_rate,
+                                             FUN = remove.punct.from.num)
+air.bnb.dataset$host_acceptance_rate <- sapply(air.bnb.dataset$host_acceptance_rate,
+                                             FUN = remove.punct.from.num)
+air.bnb.dataset$price <- sapply(air.bnb.dataset$price,
+                                             FUN = remove.punct.from.num)
 air.bnb.dataset$price <- as.numeric(air.bnb.dataset$price)/100
-air.bnb.dataset$security_deposit <- as.numeric(gsub("[[:punct:]]",
-"", listings$security_deposit))/100
-air.bnb.dataset$cleaning_fee <- as.numeric(gsub("[[:punct:]]",
-"", listings$cleaning_fee))/100
-air.bnb.dataset$extra_people <- as.numeric(gsub("[[:punct:]]","", listings$extra_people))/100
+air.bnb.dataset$security_deposit <- sapply(air.bnb.dataset$security_deposit,
+                                             FUN = remove.punct.from.num)/100
+air.bnb.dataset$cleaning_fee <- sapply(air.bnb.dataset$cleaning_fee,
+                                             FUN = remove.punct.from.num)/100
+air.bnb.dataset$extra_people <- sapply(air.bnb.dataset$extra_people,
+                                             FUN = remove.punct.from.num)/100
 
 # Deal with NAs in optional costs
 air.bnb.dataset$cleaning_fee[is.na(air.bnb.dataset$cleaning_fee)] <- 0
@@ -381,9 +394,9 @@ distance_vector_function <- function(listing_longitude,
   distance_vector <- rep(0,n.list.lat)
   
   # Loop through all listings
-  for(i in 1:length(distance_vector)){
+  for(i in 1:n.list.lat){
     # Loop through all stations
-    for (j in 1:dim(station)[1]){
+    for(j in 1:n.station.lat){
       # Calculate distance between listing and station
       distance_temp[j] <- gcd.vif.customized(listing_longitude[i],
                                           listing_latitude[i],
@@ -399,14 +412,16 @@ distance_vector_function <- function(listing_longitude,
 
 
 
-listing_location=listings[,c("latitude","longitude")]
+listing_location <- air.bnb.dataset[,c("latitude","longitude")]
 row_station <- read.csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
-station=row_station[,4:5]
+station <- row_station[,c("Station.Latitude", "Station.Longitude")]
 
 distances <- distance_vector_function(air.bnb.dataset$longitude,
                                      air.bnb.dataset$latitude,
                                      row_station$Station.Longitude,
                                      row_station$Station.Latitude)
+
+air.bnb.dataset$distance_in_meters <- distance
 
 ```
 
