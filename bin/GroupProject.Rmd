@@ -155,6 +155,8 @@ drop.3 <- c("scrape_id","host_location",
 "availability_90","first_review",
 "host_listings_count","state",
 "host_name")
+
+print(drop.3)
 ```
 
 ```{r}
@@ -421,7 +423,7 @@ distances <- distance_vector_function(air.bnb.dataset$longitude,
                                      row_station$Station.Longitude,
                                      row_station$Station.Latitude)
 
-air.bnb.dataset$distance_in_meters <- distance
+air.bnb.dataset$distance_in_meters <- distances
 
 ```
 
