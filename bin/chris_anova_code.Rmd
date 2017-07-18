@@ -1,0 +1,28 @@
+#### Anova
+
+##### One Way Anova for price by property type
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# One Way Anova (Completely Randomized Design)
+# Price vs. Property Type
+Listings_Review <- Listings[complete.cases(Listings$price),c("review_scores_rating","property_type","room_type","price")]
+one_way.fit <- aov(log(price+1) ~ property_type, data=Listings_Review)
+layout(matrix(c(1,2,3,4),2,2))
+plot(one_way.fit)
+summary(one_way.fit)
+AIC(one_way.fit)
+BIC(one_way.fit)
+```
+
+##### Two Way Anova for Price vs. Property Type & Room Type
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Two Way Factorial Design 
+# Price vs. Property Type & Room Type
+two_way.fit <- aov(log(price+1) ~ property_type*room_type, data=Listings_Review)
+layout(matrix(c(1,2,3,4),2,2))
+plot(two_way.fit)
+summary(two_way.fit)
+AIC(two_way.fit)
+BIC(two_way.fit)
+```

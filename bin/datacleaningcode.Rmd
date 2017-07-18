@@ -1,0 +1,114 @@
+---
+output: pdf_document
+---
+#### General Data Cleaning
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
+
+#Read in Data
+
+listings <- read.csv('listings.csv', stringsAsFactors = FALSE)
+#names(listings)
+
+#Create Subset for Analysis
+
+drops <- c("listing_url","scrape_id","last_scraped","name","summary","space","description","neighborhood_overview","notes","transit","thumbnail_url","medium_url","picture_url","xl_picture_url","host_url","host_location","host_about","host_thumbnail_url","host_picture_url","street","neighbourhood","market","smart_location","country_code","country","calendar_updated" ,"weekly_price", "monthly_price", "calendar_last_scraped", "has_availability","availability_30", "availability_90","availability_365","first_review", "last_review", "jurisdiction_names", "requires_license", "amenities","host_verifications",  "license","experiences_offered","host_listings_count","city","state","zipcode","host_name","host_neighbourhood","square_feet")
+air.bnb.dataset <- listings[,!(names(listings) %in% drops)]
+
+#Identify Factor Variables
+
+air.bnb.dataset$room_type <- (as.factor(air.bnb.dataset$room_type))
+air.bnb.dataset$is_location_exact <- (as.factor(air.bnb.dataset$is_location_exact))
+air.bnb.dataset$property_type <- (as.factor(air.bnb.dataset$property_type))
+air.bnb.dataset$bed_type <- (as.factor(air.bnb.dataset$bed_type))
+air.bnb.dataset$host_response_time <- (as.factor(air.bnb.dataset$host_response_time))
+air.bnb.dataset$host_is_superhost <- (as.factor(air.bnb.dataset$host_is_superhost))
+air.bnb.dataset$host_identity_verified <- (as.factor(air.bnb.dataset$host_identity_verified))
+air.bnb.dataset$host_has_profile_pic <- (as.factor(air.bnb.dataset$host_has_profile_pic))
+air.bnb.dataset$neighbourhood_cleansed <- (as.factor(air.bnb.dataset$neighbourhood_cleansed))
+air.bnb.dataset$neighbourhood_group_cleansed <- (as.factor(air.bnb.dataset$neighbourhood_group_cleansed))
+air.bnb.dataset$instant_bookable <- (as.factor( air.bnb.dataset$instant_bookable ))
+air.bnb.dataset$cancellation_policy <- (as.factor( air.bnb.dataset$cancellation_policy ))
+air.bnb.dataset$require_guest_profile_picture <- (as.factor( air.bnb.dataset$require_guest_profile_picture ))
+air.bnb.dataset$require_guest_phone_verification <- (as.factor( air.bnb.dataset$require_guest_phone_verification ))
+
+#Dates
+
+air.bnb.dataset$host_since <- (as.Date(air.bnb.dataset$host_since))
+
+#Numbers with formatting
+
+air.bnb.dataset$host_response_rate <- as.numeric(gsub("[[:punct:]]", "", listings$host_response_rate))
+air.bnb.dataset$host_acceptance_rate <- as.numeric(gsub("[[:punct:]]", "", listings$host_acceptance_rate))
+air.bnb.dataset$price <- gsub("[[:punct:]]", "", listings$price)
+air.bnb.dataset$price <- as.numeric(air.bnb.dataset$price)/100
+#air.bnb.dataset$weekly_price <- as.numeric(gsub("[[:punct:]]", "", listings$weekly_price))/100  
+#air.bnb.dataset$monthly_price <- as.numeric(gsub("[[:punct:]]", "", listings$monthly_price))/100 
+air.bnb.dataset$security_deposit <- as.numeric(gsub("[[:punct:]]", "", listings$security_deposit))/100
+air.bnb.dataset$cleaning_fee <- as.numeric(gsub("[[:punct:]]", "", listings$cleaning_fee))/100
+air.bnb.dataset$extra_people <- as.numeric(gsub("[[:punct:]]", "", listings$extra_people))/100
+
+#Deal with NAs in optional costs
+
+air.bnb.dataset$cleaning_fee[is.na(air.bnb.dataset$cleaning_fee)] <- 0
+air.bnb.dataset$security_deposit[is.na(air.bnb.dataset$security_deposit)] <- 0
+air.bnb.dataset$extra_people[is.na(air.bnb.dataset$extra_people)] <- 0
+
+```
+#### Number of hosts in a listing
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
+# Number of hosts in a listing
+
+n_Listings <- dim(listings)[1]
+Couple <- rep(NA,n_Listings)
+
+for(i in 1:n_Listings){
+  if(length(grep("&",listings$host_name[i])) > 0 | length(grep(" And ",listings$host_name[i])) > 0){
+    NumberOfCommas <- attr(regexpr(", ",listings$host_name[i]),"match.length")
+    if(NumberOfCommas > 0){
+      Couple[i] <- 2 + NumberOfCommas
+    }
+    else{
+      Couple[i] <- 2
+    }
+  }
+  else{
+    Couple[i] <- 1
+  }
+}
+
+air.bnb.dataset$number.of.hosts<-Couple
+
+```
+#### Amenities and Host Verifications
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE, message=FALSE}
+# Ammenities and Host Verifications
+
+library(RTextTools)
+
+# Turn spaces into .s and commas into spaces in amenities
+listings$amenities <- gsub(" ", ".", listings$amenities)
+listings$amenities <- gsub(",", " ", listings$amenities)
+
+# Create Bags of words
+hostVers <- create_matrix(listings$host_verifications, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+#hostVers$dimnames$Terms
+amenities <- create_matrix(listings$amenities, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+#amenities$dimnames$Terms
+
+# Join to dataset
+hVers <- (as.data.frame(as.matrix(hostVers)))
+names(hVers) <- paste('Host.Ver.',names(hVers), sep='')
+amen <- (as.data.frame(as.matrix(amenities)))
+names(amen) <- paste('Amenities.',names(amen), sep='')
+air.bnb.dataset <- cbind(air.bnb.dataset, amen, hVers)
+```
+
+```{r, cache=TRUE, tidy=TRUE, eval=FALSE, include=FALSE, warning=FALSE,message=FALSE}
+dist2sub<-read.csv("distance_in_meters.csv", header=TRUE)
+air.bnb.dataset <- cbind(air.bnb.dataset, dist2sub)
+air.bnb.dataset <- air.bnb.dataset[,-c(94:95)]
+write.csv( air.bnb.dataset, "airbnbdata.csv" )
+#summary(complete.cases(air.bnb.dataset))
+#summary(air.bnb.dataset)
+#head(air.bnb.dataset)
+```

@@ -1,0 +1,18 @@
+#### Mann Whitney Wilcoxon
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Mann Whitney Wilcoxon
+# Superhost & price
+Listings.Superhost = Listings[Listings$host_is_superhost =="t",c("price")]
+Listings.NotSuperhost = Listings[Listings$host_is_superhost =="f",c("price")]
+wilcox.test(Listings.Superhost,Listings.NotSuperhost)
+```
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Mann Whitney Wilcoxon
+# Superhost & distance to subway
+Listings.Superhost = Listings[Listings$host_is_superhost =="t",c("distance_in_meters")]
+Listings.NotSuperhost = Listings[Listings$host_is_superhost =="f",c("distance_in_meters")]
+wilcox.test(Listings.Superhost,Listings.NotSuperhost)
+
+```

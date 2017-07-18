@@ -1,0 +1,107 @@
+#### Tables and Summary Statistics
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Summary statistics of price
+summary(Listings$price)
+# Basic histogram of price
+hist(log(Listings$price+1),main="Histogram of log of Nightly Price",xlab="log(Nightly Price)")
+
+# Basic summary statistics of superhost indicator variable
+summary(Listings$host_is_superhost)
+
+# Basic scatter plot of price & rating
+library(ggplot2)
+ggplot(Listings, aes(x=log(price + 1), y=review_scores_rating)) +
+  geom_point(shape=1)+labs(x="log(Nightly Price)",y="Review Score")
+
+# Summary statistics & histogram of distance to nearest subway
+summary(Listings$distance_in_meters)
+hist(log(Listings$distance_in_meters+1),main="Histogram of log of Distance to Nearest Subway Station",xlab="log(Distance)")
+
+# Basic scatter plot of distance to nearest subway & price
+ggplot(Listings, aes(x=log(distance_in_meters + 1), y=log(price+1))) +
+  geom_point(shape=1)+labs(x="log(Distance)",y="log(Nightly Price)")
+
+# Basic scatter plot of distance to nearest subway & review score
+ggplot(Listings, aes(x=log(distance_in_meters + 1), y=review_scores_rating)) +
+  geom_point(shape=1)+labs(x="log(Distance)",y="Review Score")
+
+# Box plots of superhost & price (justification of Mann-Whitney Wilcoxon test)
+ggplot(Listings, aes(x=host_is_superhost, y=log(price+1))) +
+  geom_boxplot()+labs(x="Superhost Flag",y="log(Nightly Price)")
+
+# Box plots of superhost & distance to subway (justification of Mann-Whitney Wilcoxon test)
+ggplot(Listings, aes(x=host_is_superhost, y=log(distance_in_meters+1))) +
+  geom_boxplot()+labs(x="Superhost Flag",y="log(Distance)")
+
+# Plot of NYC borough & price
+plot(Listings$neighbourhood_group_cleansed,log(Listings$price+1))
+
+# Table of NYC borough & superhosts
+table(Listings$neighbourhood_group_cleansed,Listings$host_is_superhost)
+
+```
+
+#### Locations of Superhosts
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Plot locations of superhosts
+library(leaflet)
+library(maps)
+library(data.table)
+library(dplyr)
+Listings.Superhost.Loc = Listings[which(Listings$is_location_exact=="t" & Listings$host_is_superhost == "t"),c("latitude","longitude")]
+
+
+library(ggmap)
+
+map <- get_map(location = 'New York City, NY', zoom = 10)
+mapPoints <- ggmap(map) +
+   geom_point(aes(x = longitude, y = latitude), data = Listings.Superhost.Loc, alpha = .5)+
+  labs(title="Locations of Superhosts")
+mapPoints
+```
+
+#### Locations of most and least expensive
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Plot locations of cheapest & most expensive locations
+Listings.Cheap.Loc = Listings[which(Listings$is_location_exact=="t" & Listings$price <= 30),c("latitude","longitude")]
+No_Cheap = dim(Listings.Cheap.Loc)[1]
+Listings.Pricey.Loc = Listings[which(Listings$is_location_exact=="t" & Listings$price >= 1500),c("latitude","longitude")]
+No_Pricey = dim(Listings.Pricey.Loc)[1]
+Listings.Cheap.Loc <- cbind(Listings.Cheap.Loc,rep("Cheapest",No_Cheap))
+names(Listings.Cheap.Loc)[3] <- "Cost"
+Listings.Pricey.Loc <- cbind(Listings.Pricey.Loc,rep("Priciest",No_Pricey))
+names(Listings.Pricey.Loc)[3] <- "Cost"
+Listings.AllPrices <- rbind(Listings.Cheap.Loc,Listings.Pricey.Loc)
+
+map <- get_map(location = 'New York City, NY', zoom = 11)
+mapPoints <- ggmap(map) +
+   geom_point(aes(x = longitude, y = latitude), data = Listings.AllPrices, alpha = .5) +
+  facet_grid(. ~ Cost)
+
+mapPoints
+
+```
+
+#### Correlations with Price and Review Scores
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+# Boxplots of Property Types vs. Review Scores
+layout(c(1,1))
+
+ggplot(Listings, aes(x=property_type, y=review_scores_rating)) +
+  geom_boxplot()+theme(axis.text.x=element_text(angle=90,size=12))+labs(x="Property Type",y="Review Score")
+
+NumericVariables <- c("distance_in_meters","Amenities.wirelessinternet","Couple"    ,"Host.Ver.email","Host.Ver.facebook","Host.Ver.googl","Host.Ver.jumio"             ,"Host.Ver.kba","Host.Ver.linkedin","Host.Ver.manualofflin","Host.Ver.manualonlin"   ,"Host.Ver.none","Host.Ver.phone","Host.Ver.photograph","Host.Ver.review"            ,"Host.Ver.sentid","Host.Ver.weibo","Amenities.aircondit","Amenities.breakfast"      ,"Amenities.buzzerwirelessintercom","Amenities.cabletv","Amenities.carbonmonoxidedetector","Amenities.cat","Amenities.dog","Amenities.doorman","Amenities.dryer"          ,"Amenities.elevatorinbuild","Amenities.essenti","Amenities.familykidfriend",        "Amenities.fireextinguish","Amenities.firstaidkit","Amenities.freeparkingonpremis"   
+,"Amenities.gym","Amenities.heat","Amenities.hottub","Amenities.indoorfireplac"      ,"Amenities.internet","Amenities.kitchen","Amenities.otherpet" ,              "Amenities.petsallow","Amenities.petsliveonthisproperti","Amenities.pool"            ,"Amenities.safetycard","Amenities.shampoo","Amenities.smokedetector","Amenities.smokingallow","Amenities.suitableforev","Amenities.washer","Amenities.washerdry"    ,"Amenities.wheelchairaccess","calculated_host_listings_count","reviews_per_month", "number_of_reviews","review_scores_rating","review_scores_accuracy",           "review_scores_cleanliness","review_scores_checkin","review_scores_communication"    ,"review_scores_location","review_scores_value","minimum_nights"                ,"maximum_nights","availability_30","availability_365","guests_included", "bathrooms","bedrooms","beds","host_total_listings_count","host_response_rate","host_acceptance_rate")
+
+Listings.Numeric <- Listings[,(names(Listings) %in% NumericVariables)]
+AllCor <- cor(Listings.Numeric,Listings[,c("price")])
+# Correlation between each numeric variable and price
+AllCor
+
+
+```

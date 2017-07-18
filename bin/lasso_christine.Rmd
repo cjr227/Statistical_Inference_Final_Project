@@ -1,0 +1,83 @@
+#### Lasso Regression
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+library(data.table)
+library(dplyr)
+library(ggplot2)
+getwd()
+setwd("c:/Users/Xtine Lee/Documents/R")  
+data.dir <- '.'
+raw <- fread(sprintf('%s/W4702/airbnb/abdatav1_10k.csv', data.dir), header = TRUE)
+View(raw)
+class(raw$host_since)
+class(raw$reviews_per_month)
+#Converting NAs into 0s in raw data
+re_levels <- 
+  function(col) {
+    if (is.factor(col))  levels(col) <- c(levels(col), "0")
+    col
+  }
+df <- sapply(raw, re_levels)
+df[is.na(df)] <-  0
+View(df)
+df<-as.data.frame(df)
+class(df$host_total_listings_count)
+df$price <-(as.numeric(df$price))
+df$num_host <-(as.numeric(df$num_host))
+df$host_since <-(as.numeric(df$host_since))
+df$host_response_rate <-(as.numeric(df$host_response_rate))
+df$host_acceptance_rate <-(as.numeric(df$host_acceptance_rate))
+df$host_total_listings_count <- (as.numeric(df$host_total_listings_count))
+df$Num_Amenities <-(as.numeric(df$Num_Amenities))
+df$security_deposit <-(as.numeric(df$security_deposit))
+df$cleaning_fee <-(as.numeric(df$cleaning_fee))
+df$guests_included <-(as.numeric(df$guests_included))
+df$extra_people <-(as.numeric(df$extra_people))
+df$minimum_nights <-(as.numeric(df$minimum_nights))
+df$maximum_nights <-(as.numeric(df$maximum_nights))
+df$availability_365 <-(as.numeric(df$availability_365))
+df$number_of_reviews <-(as.numeric(df$number_of_reviews))
+df$review_scores_rating <-(as.numeric(df$review_scores_rating))
+df$review_scores_accuracy <-(as.numeric(df$review_scores_accuracy))
+df$review_scores_cleanliness <-(as.numeric(df$review_scores_cleanliness))
+df$review_scores_checkin <-(as.numeric(df$review_scores_checkin))
+df$review_scores_communication <-(as.numeric(df$review_scores_communication))
+df$review_scores_location <-(as.numeric(df$review_scores_location))
+df$review_scores_value <-(as.numeric(df$review_scores_value))
+df$calculated_host_listings_count <-(as.numeric(df$calculated_host_listings_count))
+df$reviews_per_month <-(as.numeric(df$reviews_per_month))
+x= model.matrix(df$price~., df)[ ,-1] #fix x matrix
+View(x)
+summary(x)
+dim(x)
+length(y)
+y <-df$price 
+train <- sample(1:nrow(x), 8000)
+test <- (-train)
+x.train <-x[train, ]
+x.test <-x[test, ]
+y.train <- y[train]
+y.test <-y[test]
+class(x.train)
+class(x.test)
+class(y.test)
+#Performing the Lasso
+library(glmnet)
+grid=10^seq(10, -2, length=100)
+lasso.mod= glmnet(x.train, y.train, alpha=1, lambda=grid) #x not work
+plot(lasso.mod)
+dim(coef(lasso.mod))
+set.seed(1)
+cv.out=cv.glmnet(x.train, y.train, alpha=1)
+plot(cv.out)
+bestlam=cv.out$lambda.min
+bestlam
+log(bestlam)
+lasso.pred=predict(lasso.mod, s=bestlam, newx=x.test) #x not work
+mean((lasso.pred - y.test)^2) #x not work
+out= glmnet(x, y, alpha=1, lambda=bestlam)
+lasso.coef=predict(out, type="coefficients", s=bestlam)[1:50, ]
+coeflist <-lasso.coef[lasso.coef!=0]
+
+
+```
