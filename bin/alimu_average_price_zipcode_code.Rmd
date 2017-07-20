@@ -1,0 +1,60 @@
+---
+title: "average_price_map_code"
+author: "alimu"
+date: "December 14, 2015"
+output: html_document
+---
+
+```{r, eval=FALSE, Tidy=TRUE}
+###In this part, we are trying to find the average price for every zip code.  
+### This part is average price per listing. 
+### This map making process is: we first outputed the data to csv file and then used extra tool (https://www.mapbusinessonline.com)to draw the map.
+
+
+### Open source zip code mapping
+# https://www.r-bloggers.com/my-first-r-package-zipcode/
+# http://austinwehrwein.com/digital-humanities/creating-a-density-map-in-r-with-zipcodes/
+# https://gis.stackexchange.com/questions/5114/obtaining-up-to-date-list-of-us-zip-codes-with-latitude-and-longitude-geocodes
+# https://mangomap.com/blog/how-to-make-a-web-map-from-a-spreadsheet/
+# https://www.arcgis.com/home/item.html?id=8d2012a2016e484dafaac0451f9aea24
+# http://simplemaps.com/data/us-zips
+# http://federalgovernmentzipcodes.us/
+# https://stackoverflow.com/questions/32252505/how-to-map-new-york-city-using-map-function-in-r
+# http://www.openheatmap.com/
+# https://gis.stackexchange.com/questions/2682/sources-for-us-zip-code-boundaries
+
+listing=read.csv("/Users/Apple/Downloads/listings.csv")
+fra=data.frame(listing)
+price_average=aggregate(fra$price,by=list(fra$zipcode),FUN="mean",na.rm=TRUE)
+write.csv(price_average, file = "price_average.csv")
+
+### This part is average per room for every zipcode. 
+### making map
+fra=data.frame(listing)
+fra2=fra
+
+for (i in 1:length(fra2$bedrooms)){
+if(is.null(fra2$bedrooms[i])){
+fra2=fra2[-i,]
+}
+}
+
+for (i in 1:length(fra2$bedrooms)){
+fra2$bedrooms[i]=(fra2$bedrooms[i]+1)
+}
+
+fra2$price=as.numeric(fra2$price)
+fra2$price=fra2$price/fra2$bedrooms
+
+price_average2=aggregate(fra2$price,by=list(fra2$zipcode),FUN="mean",na.rm=TRUE)
+
+write.csv(price_average2, file = "price_average2.csv")
+
+### This part is for the average median for the zipcode.
+fra=data.frame(listing)
+fra3=fra
+fra3$price=as.numeric(fra3$price)
+price_average3=aggregate(fra3$price,by=list(fra3$zipcode),FUN="median",na.rm=TRUE)
+write.csv(price_average3, file = "price_average33.csv")
+```
+

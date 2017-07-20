@@ -168,6 +168,9 @@ print(drop.3)
 ```{r, child='chris_eda_code.Rmd'}
 ```
 
+```{r, child='alimu_average_price_zipcode_code.Rmd'}
+```
+
 ```{r, child='maura_kmeans_code.Rmd'}
 ```
 
