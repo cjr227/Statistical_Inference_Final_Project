@@ -6,6 +6,39 @@ output: html_document
 ---
 
 ```{r, eval=FALSE, Tidy=TRUE}
+library(zipcode)
+library(maps)
+
+#install.packages("devtools", dependencies = TRUE)
+#library(devtools)
+#devtools::install_github("hrbrmstr/albersusa")
+
+data(zipcode)
+
+us<-map_data('state',region = c('new york', 'new jersey', 'penn'))
+
+# Attempt 1: Map average price of listings per zip code
+price_average <- aggregate(air.bnb.dataset$price,
+                           by=list(air.bnb.dataset$zipcode),
+                           FUN="mean",na.rm=TRUE)
+names(price_average) <- c("zipcode","mean.price")
+price_avg_lat_long <- merge(price_average, zipcode, by.x='zipcode', by.y='zip')
+price_avg_lat_long$mean.price <- round(price_avg_lat_long$mean.price,2)
+to.remove <- which(price_avg_lat_long$zipcode %in% c("94103","99135"))
+price_avg_lat_long <- price_avg_lat_long[-to.remove,]
+
+
+g <- ggplot(data=price_avg_lat_long) + 
+  geom_polygon(data=us,aes(x=long,y=lat,group=group),color='gray',fill=NA,alpha=.35)+
+  geom_point(aes(x=longitude, y=latitude)) 
+
+# Attempt 2: Map average price of listings per zip code, dividing price by (number of bedrooms plus 1)
+
+# Attempt 3: Map median price of listings per zip code
+```
+
+
+```{r, eval=FALSE, Tidy=TRUE}
 ###In this part, we are trying to find the average price for every zip code.  
 ### This part is average price per listing. 
 ### This map making process is: we first outputed the data to csv file and then used extra tool (https://www.mapbusinessonline.com)to draw the map.
@@ -22,6 +55,13 @@ output: html_document
 # https://stackoverflow.com/questions/32252505/how-to-map-new-york-city-using-map-function-in-r
 # http://www.openheatmap.com/
 # https://gis.stackexchange.com/questions/2682/sources-for-us-zip-code-boundaries
+# https://data.cityofnewyork.us/Business/Zip-Code-Boundaries/i8iw-xf4u/data
+
+### Devtools in Linux
+# https://stackoverflow.com/questions/20923209/problems-installing-the-devtools-package
+
+### SQL
+# http://cosette.cs.washington.edu/
 
 listing=read.csv("/Users/Apple/Downloads/listings.csv")
 fra=data.frame(listing)
