@@ -13,6 +13,10 @@ library(maps)
 #library(devtools)
 #devtools::install_github("hrbrmstr/albersusa")
 
+
+# Install GDAL
+# wget http://download.osgeo.org/gdal/CURRENT/gdal-2.2.1.tar.gz
+
 data(zipcode)
 
 us<-map_data('state',region = c('new york', 'new jersey', 'penn'))
@@ -62,6 +66,10 @@ g <- ggplot(data=price_avg_lat_long) +
 
 ### SQL
 # http://cosette.cs.washington.edu/
+
+### GDAL
+# https://stackoverflow.com/questions/37294127/python-gdal-2-1-installation-on-ubuntu-16-04
+# http://www.gdal.org/
 
 listing=read.csv("/Users/Apple/Downloads/listings.csv")
 fra=data.frame(listing)
