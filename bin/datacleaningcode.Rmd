@@ -78,6 +78,32 @@ air.bnb.dataset$cleaning_fee[is.na(air.bnb.dataset$cleaning_fee)] <- 0
 air.bnb.dataset$security_deposit[is.na(air.bnb.dataset$security_deposit)] <- 0
 air.bnb.dataset$extra_people[is.na(air.bnb.dataset$extra_people)] <- 0
 
+# Remove zip codes from outside NYC
+to.remove <- which(air.bnb.dataset$zipcode %in% c("07030","07105","07712",
+                                                  "12335","12337",
+                                                  "94103","99135"))
+air.bnb.dataset <- air.bnb.dataset[-to.remove,]
+
+# Deal with bad zip codes
+bad.zip <- function(zip){
+  if(nchar(zip) == 5){
+    return(zip)
+  } else if(zip == "8456422473 call for more details"){
+    return("")
+  } else if(zip == "1m"){
+    return("")
+  }
+  else if(nchar(zip) > 5){
+    zip <- substr(zip,1,5)
+    return(zip)
+  } else{
+    return(zip)
+  }
+  
+}
+
+air.bnb.dataset$zipcode <- sapply(air.bnb.dataset$zipcode,FUN = bad.zip)
+
 ```
 
 #### Number of hosts in a listing

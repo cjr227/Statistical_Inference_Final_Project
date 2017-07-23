@@ -11,7 +11,8 @@ output:
 package_list <- c("knitr","ggplot2","RTextTools",
                   "leaflet","maps","data.table",
                   "dplyr","ggmap","reshape2",
-                  "MASS","rpart","glmnet","gam")
+                  "MASS","rpart","glmnet","gam","sp",
+                  "rgdal","rgeos","ggthemes","maptools")
 for(i in 1:length(package_list)){
   if(!(package_list[i] %in% installed.packages())){
     install.packages(package_list[i])
@@ -31,6 +32,11 @@ library(MASS)
 library(rpart)
 library(glmnet)
 library(gam)
+library(sp)
+library(rgdal)
+library(rgeos)
+library(ggthemes)
+library(maptools)
 opts_chunk$set(tidy.opts=list(width.cutoff=50))
 ```
 
