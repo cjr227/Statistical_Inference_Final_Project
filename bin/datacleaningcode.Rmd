@@ -16,8 +16,8 @@ drops <- c("listing_url", "scrape_id", "last_scraped",
 "country_code", "country", "calendar_updated",
 "weekly_price", "monthly_price", "calendar_last_scraped","has_availability", "availability_30", "availability_90",
 "availability_365", "first_review", "last_review",
-"jurisdiction_names", "requires_license", "amenities",
-"host_verifications", "license", "experiences_offered",
+"jurisdiction_names", "requires_license", 
+ "license", "experiences_offered",
 "host_listings_count", "city", "state", 
  "host_neighbourhood", "square_feet")
 
@@ -104,6 +104,9 @@ bad.zip <- function(zip){
 
 air.bnb.dataset$zipcode <- sapply(air.bnb.dataset$zipcode,FUN = bad.zip)
 
+# Use Laplace method to calculate price per room
+air.bnb.dataset$price.per.room <- air.bnb.dataset$price/(air.bnb.dataset$bedrooms+1)
+
 ```
 
 #### Number of hosts in a listing
@@ -147,13 +150,13 @@ air.bnb.dataset$number.of.hosts <- sapply(air.bnb.dataset$host_name,FUN = find.a
 
 
 # Turn spaces into periods and commas into spaces in amenities
-listings$amenities <- gsub(" ", ".", listings$amenities)
-listings$amenities <- gsub(",", " ", listings$amenities)
+air.bnb.dataset$amenities <- gsub(" ", ".", air.bnb.dataset$amenities)
+air.bnb.dataset$amenities <- gsub(",", " ", air.bnb.dataset$amenities)
 
 # Create Bags of words
-hostVers <- create_matrix(listings$host_verifications, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+hostVers <- create_matrix(air.bnb.dataset$host_verifications, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
 
-amenities <- create_matrix(listings$amenities, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
+amenities <- create_matrix(air.bnb.dataset$amenities, language="english", removeNumbers=TRUE, removeStopwords=TRUE, removePunctuation=TRUE, removeSparseTerms=FALSE, toLower=TRUE, stemWords=FALSE)
 
 
 # Join to dataset

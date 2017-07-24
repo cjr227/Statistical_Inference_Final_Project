@@ -1,5 +1,12 @@
 #### Lasso Regression
 ```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+air.bnb.dataset.complete <- air.bnb.dataset[complete.cases(air.bnb.dataset),]
+# Create random sample here
+predictors <- model.matrix(price~ ., data=air.bnb.dataset.complete)[,-1]
+```
+
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
 
 library(data.table)
 library(dplyr)

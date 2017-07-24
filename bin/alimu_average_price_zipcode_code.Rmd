@@ -1,6 +1,6 @@
 ---
 title: "average_price_map_code"
-author: "alimu"
+author: "Christopher Rusnak, Alimu Mijiti"
 date: "December 14, 2015"
 output: html_document
 ---
@@ -51,9 +51,12 @@ gg <- gg + theme(legend.position = "bottom")
 gg <- gg + scale_fill_gradientn(colours = terrain.colors(10))
 
 gg
+```
+
+```{r, eval=FALSE, Tidy=TRUE}
 
 ## Attempt 2: Map average price of listings per zip code, dividing price by (number of bedrooms plus 1)
-air.bnb.dataset$price.per.room <- air.bnb.dataset$price/(air.bnb.dataset$bedrooms+1)
+
 
 price_per_room_average <- aggregate(air.bnb.dataset$price.per.room,
                            by=list(air.bnb.dataset$zipcode),
@@ -78,7 +81,9 @@ gg <- gg + theme(legend.position = "bottom")
 gg <- gg + scale_fill_gradientn(colours = terrain.colors(10))
 
 gg
+```
 
+```{r, eval=FALSE, Tidy=TRUE}
 ## Attempt 3: Map median price of listings per zip code
 
 price_median <- aggregate(air.bnb.dataset$price,
