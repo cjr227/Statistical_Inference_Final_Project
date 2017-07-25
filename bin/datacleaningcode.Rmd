@@ -78,6 +78,24 @@ air.bnb.dataset$cleaning_fee[is.na(air.bnb.dataset$cleaning_fee)] <- 0
 air.bnb.dataset$security_deposit[is.na(air.bnb.dataset$security_deposit)] <- 0
 air.bnb.dataset$extra_people[is.na(air.bnb.dataset$extra_people)] <- 0
 
+
+# Other numeric variables
+air.bnb.dataset$host_total_listings_count <- as.numeric(air.bnb.dataset$host_total_listings_count)
+air.bnb.dataset$guests_included <- as.numeric(air.bnb.dataset$guests_included)
+air.bnb.dataset$extra_people <- as.numeric(air.bnb.dataset$extra_people)
+air.bnb.dataset$minimum_nights <- as.numeric(air.bnb.dataset$minimum_nights)
+air.bnb.dataset$maximum_nights <- as.numeric(air.bnb.dataset$maximum_nights)
+air.bnb.dataset$number_of_reviews <- as.numeric(air.bnb.dataset$number_of_reviews)
+air.bnb.dataset$review_scores_rating <- as.numeric(air.bnb.dataset$review_scores_rating)
+air.bnb.dataset$review_scores_accuracy <- as.numeric(air.bnb.dataset$review_scores_accuracy)
+air.bnb.dataset$review_scores_cleanliness <- as.numeric(air.bnb.dataset$review_scores_cleanliness)
+air.bnb.dataset$review_scores_checkin <- as.numeric(air.bnb.dataset$review_scores_checkin)
+air.bnb.dataset$review_scores_communication <- as.numeric(air.bnb.dataset$review_scores_communication)
+air.bnb.dataset$review_scores_location <- as.numeric(air.bnb.dataset$review_scores_location)
+air.bnb.dataset$review_scores_value <- as.numeric(air.bnb.dataset$review_scores_value)
+air.bnb.dataset$calculated_host_listings_count <- as.numeric(air.bnb.dataset$calculated_host_listings_count)
+air.bnb.dataset$reviews_per_month <- as.numeric(air.bnb.dataset$reviews_per_month)
+
 # Remove zip codes from outside NYC
 to.remove <- which(air.bnb.dataset$zipcode %in% c("07030","07105","07712",
                                                   "12335","12337",

@@ -1,9 +1,68 @@
 #### Lasso Regression
 ```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+### TODO: Match created training set with original training set (in features) as much as possible
+# Ex. Create field that counts number of amenities
+
+## 1.glmnet() function's inability to handle NA values
 air.bnb.dataset.complete <- air.bnb.dataset[complete.cases(air.bnb.dataset),]
-# Create random sample here
-predictors <- model.matrix(price~ ., data=air.bnb.dataset.complete)[,-1]
+
+# Create random sample
+samp.ind <- sample(1:nrow(air.bnb.dataset.complete),size=10000,replace=FALSE)
+air.bnb.sample <- air.bnb.dataset.complete[samp.ind,]
+
+## 2.Lasso regression appear to be thrown off by select unnecessary categorical variables
+predictors <- model.matrix(price~ ., data=air.bnb.sample)[,-1]
+y <- air.bnb.sample[rownames(predictors), "price"] 
+
+# Training set
+train <- sample(1:nrow(predictors), 8000) 
+x.train <- predictors[train, ] 
+y.train <- y[train]
+
+# Testing set
+test <- (-train) 
+x.test <- predictors[test, ] 
+y.test <- y[test] 
+grid <- 10^seq(10, -2, length=100)
+lasso.mod <- glmnet(x.train, y.train, alpha=1, lambda=grid) 
+cv.out <- cv.glmnet(x.train, y.train, alpha=1) 
+plot(lasso.mod)
+plot(cv.out) 
+bestlam <- cv.out$lambda.min 
+bestlam
+
+
+# 2.5 Ridge Regression
+ridge.mod <- glmnet(x.train, y.train, alpha=0, lambda=grid) 
+cv.ridge.out <- cv.glmnet(x.train, y.train, alpha=0) 
+plot(ridge.mod)
+plot(cv.ridge.out) 
+bestlamridge <- cv.ridge.out$lambda.min 
+bestlamridge
 ```
+
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Highlights of predictor variables with explanatory power
+out <- glmnet(predictors, y, alpha=1, lambda=bestlam)
+lasso.coef <- predict(out, type="coefficients", s=bestlam)[1:50, ] 
+coeflist <- lasso.coef[lasso.coef!=0]
+print(coeflist)
+```
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Comparing our Lasso vs. Ridge regression performance 
+lasso.pred <- predict(lasso.mod, s=bestlam, newx=x.test) 
+mean((lasso.pred - y.test)^2) 
+
+ridge.pred <- predict(ridge.mod, s=bestlamridge, newx=x.test) 
+mean((ridge.pred - y.test)^2)
+```
+
+
+
+
+
 
 
 ```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
@@ -30,19 +89,19 @@ View(df)
 df<-as.data.frame(df)
 class(df$host_total_listings_count)
 df$price <-(as.numeric(df$price))
-df$num_host <-(as.numeric(df$num_host))
+df$num_host <-(as.numeric(df$num_host)) # Not found
 df$host_since <-(as.numeric(df$host_since))
 df$host_response_rate <-(as.numeric(df$host_response_rate))
 df$host_acceptance_rate <-(as.numeric(df$host_acceptance_rate))
 df$host_total_listings_count <- (as.numeric(df$host_total_listings_count))
-df$Num_Amenities <-(as.numeric(df$Num_Amenities))
+df$Num_Amenities <-(as.numeric(df$Num_Amenities)) # Not found
 df$security_deposit <-(as.numeric(df$security_deposit))
 df$cleaning_fee <-(as.numeric(df$cleaning_fee))
 df$guests_included <-(as.numeric(df$guests_included))
 df$extra_people <-(as.numeric(df$extra_people))
 df$minimum_nights <-(as.numeric(df$minimum_nights))
 df$maximum_nights <-(as.numeric(df$maximum_nights))
-df$availability_365 <-(as.numeric(df$availability_365))
+df$availability_365 <-(as.numeric(df$availability_365)) # Not found
 df$number_of_reviews <-(as.numeric(df$number_of_reviews))
 df$review_scores_rating <-(as.numeric(df$review_scores_rating))
 df$review_scores_accuracy <-(as.numeric(df$review_scores_accuracy))

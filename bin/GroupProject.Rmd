@@ -38,6 +38,8 @@ library(rgeos)
 library(ggthemes)
 library(maptools)
 opts_chunk$set(tidy.opts=list(width.cutoff=50))
+
+set.seed(123)
 ```
 
 ## Introduction
