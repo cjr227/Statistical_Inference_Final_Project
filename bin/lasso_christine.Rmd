@@ -11,6 +11,8 @@ samp.ind <- sample(1:nrow(air.bnb.dataset.complete),size=10000,replace=FALSE)
 air.bnb.sample <- air.bnb.dataset.complete[samp.ind,]
 
 ## 2.Lasso regression appear to be thrown off by select unnecessary categorical variables
+to.drop <- c("id","host_id","host_since","host_verifications","amenities")
+air.bnb.sample <- air.bnb.sample[,!(names(air.bnb.sample) %in% to.drop)]
 predictors <- model.matrix(price~ ., data=air.bnb.sample)[,-1]
 y <- air.bnb.sample[rownames(predictors), "price"] 
 

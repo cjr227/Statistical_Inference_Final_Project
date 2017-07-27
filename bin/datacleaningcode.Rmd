@@ -184,7 +184,11 @@ names(hVers) <- paste('Host.Ver.',names(hVers), sep='')
 amen <- (as.data.frame(as.matrix(amenities)))
 names(amen) <- paste('Amenities.',names(amen), sep='')
 
+# Calculate total number of amenities per listing
+num_amen <- apply(amen,FUN=sum, MARGIN=1)
+
 air.bnb.dataset <- cbind(air.bnb.dataset, amen, hVers)
+air.bnb.dataset$num_amenities <- num_amen
 ```
 
 ```{r, cache=TRUE, tidy=TRUE, eval=FALSE, include=FALSE, warning=FALSE,message=FALSE}
