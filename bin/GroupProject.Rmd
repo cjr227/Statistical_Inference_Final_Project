@@ -84,6 +84,7 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 ```{r, child='chris_eda.Rmd'}
 ```
 
+
 ```{r, child='maura_kmeans.Rmd'}
 ```
 
@@ -187,10 +188,22 @@ print(drop.3)
 ```{r, child='chris_mann_code.Rmd'}
 ```
 
+```{r, child='alimu_LDA_code.Rmd'}
+```
+
+```{r, child='alimu_QDA_code.Rmd'}
+```
+
+```{r, child='alimu_tree_code.Rmd'}
+```
+
 ```{r, child='chris_anova_code.Rmd'}
 ```
 
 ```{r, child='lasso_christine.Rmd'}
+```
+
+```{r, child='maura_gam_w_cv_code.Rmd'}
 ```
 
 ## Tables

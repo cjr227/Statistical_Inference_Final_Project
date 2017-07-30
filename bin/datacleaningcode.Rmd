@@ -14,8 +14,7 @@ drops <- c("listing_url", "scrape_id", "last_scraped",
 "host_about", "host_thumbnail_url", "host_picture_url",
 "street", "neighbourhood", "market", "smart_location",
 "country_code", "country", "calendar_updated",
-"weekly_price", "monthly_price", "calendar_last_scraped","has_availability", "availability_30", "availability_90",
-"availability_365", "first_review", "last_review",
+"weekly_price", "monthly_price", "calendar_last_scraped","has_availability", "availability_30", "availability_90", "first_review", "last_review",
 "jurisdiction_names", "requires_license", 
  "license", "experiences_offered",
 "host_listings_count", "city", "state", 
@@ -51,6 +50,12 @@ air.bnb.dataset$host_since <- (as.Date(air.bnb.dataset$host_since))
 remove.punct.from.num <- function(num_field){
   # Remove punctuation from numbers with formatting (ex. "86%")
   temp <- gsub("[[:punct:]]","", num_field)
+  if(is.na(num_field)){
+    return(num_field)
+  }
+  if(is.na(temp)){
+    return(num_field)
+  }
   if(temp == "NA"){
     return(NA)
   }
@@ -60,9 +65,9 @@ remove.punct.from.num <- function(num_field){
 }
 
 air.bnb.dataset$host_response_rate <- sapply(air.bnb.dataset$host_response_rate,
-                                             FUN = remove.punct.from.num)
+                                             FUN = remove.punct.from.num)/100
 air.bnb.dataset$host_acceptance_rate <- sapply(air.bnb.dataset$host_acceptance_rate,
-                                             FUN = remove.punct.from.num)
+                                             FUN = remove.punct.from.num)/100
 air.bnb.dataset$price <- sapply(air.bnb.dataset$price,
                                              FUN = remove.punct.from.num)
 air.bnb.dataset$price <- as.numeric(air.bnb.dataset$price)/100
@@ -187,7 +192,7 @@ names(amen) <- paste('Amenities.',names(amen), sep='')
 # Calculate total number of amenities per listing
 num_amen <- apply(amen,FUN=sum, MARGIN=1)
 
-air.bnb.dataset <- cbind(air.bnb.dataset, amen, hVers)
+air.bnb.dataset <- cbind(air.bnb.dataset, hVers)
 air.bnb.dataset$num_amenities <- num_amen
 ```
 
@@ -306,7 +311,11 @@ distance_vector_function <- function(listing_longitude,
   return(distance_vector)
 }
 
+# Idea: Calculate Voronoi diagram of subway stations, using geodesic distance as distance metric
+# Then, map each listing into Voronoi diagram. The station corresponding to the Voronoi cell in which
+# each listing is located will be considered the closest subway station. Then calculate the geodesic distance between each listing and its closest station.
 
+# Alternative: "Color-code" subway stations and listings, then plot them all on same Voronoi diagram
 
 listing_location <- air.bnb.dataset[,c("latitude","longitude")]
 row_station <- read.csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
@@ -318,4 +327,7 @@ distances <- distance_vector_function(air.bnb.dataset$longitude,
                                      row_station$Station.Latitude)
 
 air.bnb.dataset$distance_in_meters <- distances
+
+
+air.bnb.dataset <- droplevels(air.bnb.dataset)
 ```

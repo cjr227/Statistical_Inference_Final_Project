@@ -1,0 +1,11 @@
+---
+title: "QDA"
+author: "alimu"
+date: "December 14, 2015"
+output: html_document
+---
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+## qda used for classification
+qda_fit <- qda(formula = tree.training$host_is_superhost~., data=tree.training, na.action="na.omit")
+fitted.results.qda <- predict(qda_fit,newdata=tree.testing,type='response')
+```

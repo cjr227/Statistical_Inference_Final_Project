@@ -6,18 +6,22 @@
 ## 1.glmnet() function's inability to handle NA values
 air.bnb.dataset.complete <- air.bnb.dataset[complete.cases(air.bnb.dataset),]
 
-# Create random sample
-samp.ind <- sample(1:nrow(air.bnb.dataset.complete),size=10000,replace=FALSE)
-air.bnb.sample <- air.bnb.dataset.complete[samp.ind,]
 
 ## 2.Lasso regression appear to be thrown off by select unnecessary categorical variables
-to.drop <- c("id","host_id","host_since","host_verifications","amenities")
-air.bnb.sample <- air.bnb.sample[,!(names(air.bnb.sample) %in% to.drop)]
-predictors <- model.matrix(price~ ., data=air.bnb.sample)[,-1]
-y <- air.bnb.sample[rownames(predictors), "price"] 
+to.drop <- c("id","host_id","host_since","host_verifications","host_name","amenities",
+             "Host.Ver.facebook","Host.Ver.google","Host.Ver.jumio","Host.Ver.email",
+             "Host.Ver.kba","Host.Ver.linkedin","Host.Ver.manualoffline",
+             "Host.Ver.manualonline","Host.Ver.none","Host.Ver.phone",
+             "Host.Ver.photographer","Host.Ver.reviews","Host.Ver.sentid",
+             "Host.Ver.weibo",             
+             "price.per.room","number.of.hosts","num_amenities","distance_in_meters")
+
+air.bnb.dataset.complete <- air.bnb.dataset.complete[,!(names(air.bnb.dataset.complete) %in% to.drop)]
+predictors <- model.matrix(price~ ., data=air.bnb.dataset.complete)[,-1]
+y <- air.bnb.dataset.complete[rownames(predictors), "price"] 
 
 # Training set
-train <- sample(1:nrow(predictors), 8000) 
+train <- sample(1:nrow(predictors), 15000) 
 x.train <- predictors[train, ] 
 y.train <- y[train]
 
@@ -48,6 +52,7 @@ bestlamridge
 # Highlights of predictor variables with explanatory power
 out <- glmnet(predictors, y, alpha=1, lambda=bestlam)
 lasso.coef <- predict(out, type="coefficients", s=bestlam)[1:50, ] 
+print(lasso.coef)
 coeflist <- lasso.coef[lasso.coef!=0]
 print(coeflist)
 ```

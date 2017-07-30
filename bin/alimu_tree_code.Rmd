@@ -1,0 +1,61 @@
+---
+title: "alimu_tree_based_classification"
+output: html_document
+---
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
+## In this part, I included the distance variable in the model. 
+
+#### Gini Index
+
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit)
+is_super_host.fit.ig <- predict(tree.is_super_host, tree.testing, type="class")
+ig.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(ig.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host,main="Tree using Information Gain(distance included)")
+text(tree.is_super_host, use.n=TRUE)
+
+#### Information gain
+
+
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit,parms=list(split='information'))
+is_super_host.fit.ig <- predict(tree.is_super_host, tree.testing, type="class")
+ig.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(ig.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host,main="Tree using Information Gain(distance included)")
+text(tree.is_super_host, use.n=TRUE)
+
+
+
+## Subway station distance variable is not included here
+
+#### This is using the gini index for the tree partition.
+tree.training$distance_in_meters <- NULL
+tree.testing$distance_in_meters <- NULL
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit)
+is_super_host.fit.gini <- predict(tree.is_super_host, tree.testing, type="class")
+gini.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(gini.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host)
+text(tree.is_super_host, use.n=TRUE)
+
+
+#### This is using the information gain for the tree partition. 
+
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit,parms=list(split='information'))
+is_super_host.fit.ig <- predict(tree.is_super_host, tree.testing, type="class")
+ig.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(ig.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host)
+text(tree.is_super_host, use.n=TRUE)
+
+
+
+```
