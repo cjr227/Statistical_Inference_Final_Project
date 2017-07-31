@@ -7,7 +7,7 @@ output:
     toc: yes
 ---
 
-```{r knitr_options, include=FALSE}
+```{r knitr_options, include=FALSE, warning=FALSE,message=FALSE}
 package_list <- c("knitr","ggplot2","RTextTools",
                   "leaflet","maps","data.table",
                   "dplyr","ggmap","reshape2",
@@ -56,7 +56,7 @@ We ourselves may be avid users of some of these platforms. For example, as a pot
 
 ** Data set requirements**
 
-Further, we had in mind some criteria for selecting an interesting set of data to explore. We feel airbnb's listing data fits our search- - comprehensive data set with 94 original variables and over 30,000 observations for NYC area listings; - contains a rich set of variables, including a range of numerical and categorical variables; - the data is recently compiled in September,2015 by the author of insideairbnb.com; - the data contains interesting information on trends in properties and communities in the New York area.
+Further, we had in mind some criteria for selecting an interesting set of data to explore. We feel airbnb's listing data fits our search- - comprehensive data set with 94 original variables and over 30,000 observations for NYC area listings; - contains a rich set of variables, including a range of numerical and categorical variables; - the data was recently compiled in September 2015 by the author of insideairbnb.com; - the data contains interesting information on trends in properties and communities in the New York area.
 
 ### Project questions we wish to explore with statistical modeling techniques
 
