@@ -1,0 +1,17 @@
+#### Variables Included
+
+From the original dataset we kept the following fields in something close to their original representation:  
+
+```{r, echo=FALSE}
+names(listings)[1:44]
+```
+
+*Id, host_id, latitude, longitude and is_location_exact were kept for plotting and reference purposes rather than analysis.*
+
+In addition to these fields, we created 
+
+* a count of the number of hosts at a location (based on names field)
+* the distance (in meters) from a listing (based on lat/long) to the nearest subway station
+* indicator variables for amenities in a listing
+* indicator variables for host verifications 
+

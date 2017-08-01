@@ -10,14 +10,21 @@ output:
 ```{r knitr_options, include=FALSE, warning=FALSE,message=FALSE}
 package_list <- c("knitr","ggplot2","RTextTools",
                   "leaflet","maps","data.table",
-                  "dplyr","ggmap","reshape2",
+                  "dplyr","reshape2",
                   "MASS","rpart","glmnet","gam","sp",
-                  "rgdal","rgeos","ggthemes","maptools")
+                  "rgdal","rgeos","ggthemes","maptools",
+                  'mapproj', 'digest',"rlang","bindrcpp",
+                  'glue','pkgconfig','tibble',"ggmap")
 for(i in 1:length(package_list)){
-  if(!(package_list[i] %in% installed.packages())){
+  if(package_list[i]=="ggmap"){
+    devtools::install_github("dkahle/ggmap")
+  }
+  else if(!(package_list[i] %in% installed.packages())){
     install.packages(package_list[i])
   } 
 }
+
+devtools::install_github("dkahle/ggmap")
 
 library(knitr)
 library(ggplot2)
@@ -44,28 +51,8 @@ set.seed(123)
 
 ## Introduction
 
-### Introduction to our project - Why bother to look at airbnb data?
-
-**Motivation behind studying airbnb data**
-
-In recent years, we come across discussions in the media and
-in our communities of how the use of various sharing economy platforms such as Uber and Airbnb have become more prevalent and might have positive or possibly less positive impact on how we operate our
-lives.
-
-We ourselves may be avid users of some of these platforms. For example, as a potential guest or owner of an Airbnb listing, one might be interested in determining whether listing prices are fair given the property, and in particular, what variables might be the most meaningful predictors of listing price? If you are an airbnb host, you might wonder which variables can be the best predictors of whether you achieve the "superhost" status?
-
-** Data set requirements**
-
-Further, we had in mind some criteria for selecting an interesting set of data to explore. We feel airbnb's listing data fits our search- - comprehensive data set with 94 original variables and over 30,000 observations for NYC area listings; - contains a rich set of variables, including a range of numerical and categorical variables; - the data was recently compiled in September 2015 by the author of insideairbnb.com; - the data contains interesting information on trends in properties and communities in the New York area.
-
-### Project questions we wish to explore with statistical modeling techniques
-
-Some questions or insights which we hope to address in this project include:
-
-- Exploring the relationships between various predictors and Y variables price, or superhost status -- how strong are these relationships and do these appear to be linear or non-linear relationships?
-- Building a classification model and identifying variables for predicting whether an airbnb host is likely to be classified as a superhost.
-- Building a GAM model and identifying the best predictors for predicting the Y variable as price.
-
+```{r test-main, child='christine_intros.Rmd'}
+```
 
 ## Dataset
 
@@ -77,6 +64,9 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 
 ```{r test-main, child='datacleaningtext.Rmd'}
+```
+
+```{r test-main, child='datacleaningcode.Rmd'}
 ```
 
 ## EDA
@@ -118,19 +108,19 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 ### General Data Exploration
 
-### Correlation of each Variable with Price
+#### Correlation of each Variable with Price
 
 
 
 ### Data Manipulation and Cleaning
 
-## General Data Cleaning
+#### General Data Cleaning
 
-# Variables Excluded
+##### Variables Excluded
 
 Because image and text analysis are out of scope for this project, the following variables in the original dataset were not considered for this analysis:
 
-```{r}
+```{r, echo=FALSE}
 drop.1 <- c("listing_url","summary","description"
 ,"notes","thumbnail_url","picture_url","host_url","host_thumbnail_url"
 ,"name","space","neighborhood_overview","transit","medium_url","xl_picture_url"
@@ -141,7 +131,7 @@ print(drop.1)
 
 Some variables were excluded due to having little or no information in New York listings:
 
-```{r}
+```{r, echo=FALSE}
 drop.2 <- c("jurisdiction_names","requires_license",
             "experiences_offered" ,"square_feet","license")
 print(drop.2)
@@ -150,13 +140,13 @@ print(drop.2)
 
 Others were redundant or not relevant for this analysis.
 
-```{r}
+```{r, echo=FALSE}
 drop.3 <- c("scrape_id","host_location",
 "neighbourhood","smart_location",
 "country","weekly_price",
 "calendar_last_scraped","availability_30",
-"availability_365","last_review",
-"city","zipcode",
+"last_review",
+"city",
 "host_neighbourhood","last_scraped",
 "street","market",
 "country_code","calendar_updated",
@@ -169,7 +159,7 @@ print(drop.3)
 ```
 
 
-```{r test-main, child='datacleaningcode.Rmd'}
+```{r test-main, child='datacleaningcode.Rmd', eval=FALSE}
 ```
 
 ### EDA

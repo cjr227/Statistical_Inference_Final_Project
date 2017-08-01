@@ -1,0 +1,173 @@
+
+### Price
+
+The mean and quartiles of the price are all less than $200, demonstrating that the majority of airbnb in New York City (at least 75%) have a non-expensive nightly price. The cheapest listing is $10 and the most expensive is $10,000. Because of the wide range and the skewed distribution of price values, we take the logarithm of the price to spread out the data
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+# Basic histogram of price
+ggplot(data=air.bnb.dataset,aes(air.bnb.dataset$price+1)) + 
+  geom_histogram(boundary=0, bins = 10) + 
+  scale_x_log10() +
+  xlab("log(Nightly Price)")  + 
+  ggtitle("Histogram of log of Nightly Price")
+
+```
+
+**Price Summary Statistics**
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Summary statistics of price
+summary(air.bnb.dataset$price)
+```
+
+Box plots of nightly price with respect to NYC borough demonstrate that the most expensive airbnb are in Manhattan, as one would expect.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Plot of NYC borough & price
+ggplot(air.bnb.dataset, aes(x = neighbourhood_group_cleansed, y = log(price+1))) + 
+  geom_boxplot()+ylab("Log of Price") + xlab("Borough")
+```
+
+There are 83 listings whose nightly price is \$30 or less. Likewise, there are 87 listings whose nightly price is at least \$1,500. The least expensive listings are mostly located in Brooklyn neighborhoods such as Bushwick, Bedford-Stuyvesant, and Crown Heights. Over 80% of the most expensive listings are located in Manhattan. 
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Plot locations of cheapest & most expensive locations
+Listings.Cheap.Loc <- air.bnb.dataset[which(air.bnb.dataset$is_location_exact=="t" & air.bnb.dataset$price <= 30),c("latitude","longitude")]
+No_Cheap <- nrow(Listings.Cheap.Loc)
+Listings.Pricey.Loc <- air.bnb.dataset[which(air.bnb.dataset$is_location_exact=="t" & air.bnb.dataset$price >= 1500),c("latitude","longitude")]
+No_Pricey <- nrow(Listings.Pricey.Loc)
+Listings.Cheap.Loc <- cbind(Listings.Cheap.Loc,rep("Cheapest",No_Cheap))
+names(Listings.Cheap.Loc)[3] <- "Cost"
+Listings.Pricey.Loc <- cbind(Listings.Pricey.Loc,rep("Priciest",No_Pricey))
+names(Listings.Pricey.Loc)[3] <- "Cost"
+Listings.AllPrices <- rbind(Listings.Cheap.Loc,Listings.Pricey.Loc)
+
+map <- get_map(location = 'New York City, NY', zoom = 11)
+mapPoints <- ggmap(map) +
+   geom_point(aes(x = longitude, y = latitude), data = Listings.AllPrices, alpha = .5) +
+  facet_grid(. ~ Cost)
+
+mapPoints
+```
+
+
+
+### Ratings 
+
+Most airbnb, regardless of property type, tend to have very high reviews.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+layout(c(1,1))
+
+ggplot(air.bnb.dataset, aes(x=property_type, y=review_scores_rating)) +
+  geom_boxplot()+theme(axis.text.x=element_text(angle=90,size=12))+labs(x="Property Type",y="Review Score")
+
+```
+
+#### Ratings and Price
+
+Price is not a strong indicator of the review rating, and the two variables appear to be independent.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Basic scatter plot of price & rating
+ggplot(air.bnb.dataset, aes(x=log(price + 1), y=review_scores_rating)) +
+  geom_point(shape=1)+labs(x="log(Nightly Price)",y="Review Score")
+
+```
+
+### Distance to Nearest Subway
+
+Most listings are within 445 meters from a subway station. The listing closest to a subway station is within one meter, likely in a building right above it. The listing farthest from a subway station is 21,380 meters (~13 miles) away.
+
+**Distance to Subway Summary Statistics**
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Summary statistics & histogram of distance to nearest subway
+summary(air.bnb.dataset$distance_in_meters)
+```
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+ggplot(data=air.bnb.dataset,aes(air.bnb.dataset$distance_in_meters+1)) + 
+  geom_histogram(boundary=0, bins = 10) + 
+  scale_x_log10() +
+  xlab("log(Distance)")  + 
+  ggtitle("Histogram of log of Distance to Nearest Subway Station")
+```
+
+There is no clear relationship between the distance of a listing to a subway station and that listing's price or review score.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+ggplot(air.bnb.dataset, aes(x=log(distance_in_meters + 1), y=log(price+1))) +
+  geom_point(shape=1)+labs(x="log(Distance)",y="log(Nightly Price)")
+
+# Basic scatter plot of distance to nearest subway & review score
+ggplot(air.bnb.dataset, aes(x=log(distance_in_meters + 1), y=review_scores_rating)) +
+  geom_point(shape=1)+labs(x="log(Distance)",y="Review Score")
+```
+
+
+### SuperHosts
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Basic summary statistics of superhost indicator variable
+summary(air.bnb.dataset$host_is_superhost)
+```
+
+Only a small percentage of listings (~4%) are from "superhosts".
+
+Brooklyn and Manhattan have the most superhosts, with both boroughs being home to nearly 90% of all superhosts in NYC.
+
+Most superhosts in Brooklyn are in Williamsburg and Bedford-Stuyvesant. Within Manhattan, superhosts are more spread out, but tend to cluster in neighborhoods such as Harlem, Chelsea, Hell's Kitchen, and the East Village.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Table of NYC borough & superhosts
+kable(table(airbnb$neighbourhood_group_cleansed,airbnb$host_is_superhost))
+```
+
+
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Plot locations of superhosts
+Listings.Superhost.Loc <- air.bnb.dataset[which(air.bnb.dataset$is_location_exact=="t" & air.bnb.dataset$host_is_superhost == "t"),c("latitude","longitude")]
+
+
+map <- get_map(location = 'New York City, NY', zoom = 10)
+mapPoints <- ggmap(map) +
+   geom_point(aes(x = longitude, y = latitude), data = Listings.Superhost.Loc, alpha = .5)+
+  labs(title="Locations of Superhosts")
+mapPoints
+```
+
+
+#### SuperHosts and Price
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Box plots of superhost & price (justification of Mann-Whitney Wilcoxon test)
+ggplot(air.bnb.dataset, aes(x=host_is_superhost, y=log(price+1))) +
+  geom_boxplot()+labs(x="Superhost Flag",y="log(Nightly Price)")
+```
+
+Box plots of the indicator variable of whether or not a host is a superhost against the log of the nightly price suggest that superhosts and non-superhosts charge similar prices for their listings. We can check this by running the Mann-Whitney Wilcoxon test.
+
+#### SuperHosts and Subway Distance
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Box plots of superhost & distance to subway (justification of Mann-Whitney Wilcoxon test)
+ggplot(air.bnb.dataset, aes(x=host_is_superhost, y=log(distance_in_meters+1))) +
+  geom_boxplot()+labs(x="Superhost Flag",y="log(Distance)")
+```
+
+Box plots of the indicator variable of whether or not a host is a superhost against the log of the distance to the nearest subway station suggest that superhosts and non-superhosts have similar distributions for the distance to a subway stop. We can check this by running the Mann-Whitney Wilcoxon test.
+
+### Correlations with Price
+
+Numerical covariates tend to have a correlation of 0 with the price, suggesting the lack of a linear relationship between any single numerical variable and the price.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+NumericVariables <- c("distance_in_meters","Amenities.wirelessinternet","Couple"    ,"Host.Ver.email","Host.Ver.facebook","Host.Ver.googl","Host.Ver.jumio"             ,"Host.Ver.kba","Host.Ver.linkedin","Host.Ver.manualofflin","Host.Ver.manualonlin"   ,"Host.Ver.none","Host.Ver.phone","Host.Ver.photograph","Host.Ver.review"            ,"Host.Ver.sentid","Host.Ver.weibo","Amenities.aircondit","Amenities.breakfast"      ,"Amenities.buzzerwirelessintercom","Amenities.cabletv","Amenities.carbonmonoxidedetector","Amenities.cat","Amenities.dog","Amenities.doorman","Amenities.dryer"          ,"Amenities.elevatorinbuild","Amenities.essenti","Amenities.familykidfriend",        "Amenities.fireextinguish","Amenities.firstaidkit","Amenities.freeparkingonpremis"   
+,"Amenities.gym","Amenities.heat","Amenities.hottub","Amenities.indoorfireplac"      ,"Amenities.internet","Amenities.kitchen","Amenities.otherpet" ,              "Amenities.petsallow","Amenities.petsliveonthisproperti","Amenities.pool"            ,"Amenities.safetycard","Amenities.shampoo","Amenities.smokedetector","Amenities.smokingallow","Amenities.suitableforev","Amenities.washer","Amenities.washerdry"    ,"Amenities.wheelchairaccess","calculated_host_airbnb_count","reviews_per_month", "number_of_reviews","review_scores_rating","review_scores_accuracy",           "review_scores_cleanliness","review_scores_checkin","review_scores_communication"    ,"review_scores_location","review_scores_value","minimum_nights"                ,"maximum_nights","availability_30","availability_365","guests_included", "bathrooms","bedrooms","beds","host_total_airbnb_count","host_response_rate","host_acceptance_rate")
+
+airbnb.Numeric <- air.bnb.dataset[,(names(air.bnb.dataset) %in% NumericVariables)]
+AllCor <- cor(airbnb.Numeric,airbnb.Numeric$price, use = "complete")
+
+# Correlation between each numeric variable and price
+kable(AllCor, digits=2)
+```

@@ -8,9 +8,9 @@ output: html_document
 
 fra.selected.tree <- air.bnb.dataset[,c("host_response_rate","host_acceptance_rate","host_is_superhost","host_identity_verified","accommodates","bathrooms","bedrooms","beds","number_of_reviews","review_scores_rating","review_scores_cleanliness","review_scores_accuracy","review_scores_value","instant_bookable","reviews_per_month","distance_in_meters")]
 
-av365 <- listings[which(listings$id %in% air.bnb.dataset$id),"availability_365"]
+#av365 <- listings[which(listings$id %in% air.bnb.dataset$id),"availability_365"]
 
-fra.selected.tree <- cbind(fra.selected.tree,av365)
+#fra.selected.tree <- cbind(fra.selected.tree,av365)
 
 # Remove points that do not have superhost status labeled
 to.remove <- which(fra.selected.tree$host_is_superhost == "")
