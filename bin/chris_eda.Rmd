@@ -159,7 +159,7 @@ Box plots of the indicator variable of whether or not a host is a superhost agai
 
 ### Correlations with Price
 
-Numerical covariates tend to have a correlation of 0 with the price, suggesting the lack of a linear relationship between any single numerical variable and the price.
+Numerical covariates tend to have a low correlation with the price. Please see Correlation results in the Appendix section. We also explore these relationships further in the regression section.
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 NumericVariables <- c("distance_in_meters","Amenities.wirelessinternet","Couple"    ,"Host.Ver.email","Host.Ver.facebook","Host.Ver.googl","Host.Ver.jumio"             ,"Host.Ver.kba","Host.Ver.linkedin","Host.Ver.manualofflin","Host.Ver.manualonlin"   ,"Host.Ver.none","Host.Ver.phone","Host.Ver.photograph","Host.Ver.review"            ,"Host.Ver.sentid","Host.Ver.weibo","Amenities.aircondit","Amenities.breakfast"      ,"Amenities.buzzerwirelessintercom","Amenities.cabletv","Amenities.carbonmonoxidedetector","Amenities.cat","Amenities.dog","Amenities.doorman","Amenities.dryer"          ,"Amenities.elevatorinbuild","Amenities.essenti","Amenities.familykidfriend",        "Amenities.fireextinguish","Amenities.firstaidkit","Amenities.freeparkingonpremis"   

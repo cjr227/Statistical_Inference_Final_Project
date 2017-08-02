@@ -74,6 +74,8 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 ```{r, child='chris_eda.Rmd'}
 ```
 
+```{r, child='alimu_eda.Rmd'}
+```
 
 ```{r, child='maura_kmeans.Rmd'}
 ```

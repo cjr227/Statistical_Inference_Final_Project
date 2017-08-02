@@ -1,0 +1,117 @@
+### Average Price per Zip Code
+
+While exploring the data, we tried to find out the average price for different zipcodes in New York City.  
+
+First, we averaged the price per listing, and mapped the average price on the zipcode map below. After mapping the price, we noted that the average listing price for Manhattan areas seem to be the lowest in all of the five boroughs (Manhattan, Brooklyn, Queens, Bronx and Staten Island) of New York. 
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+## Attempt 1: Map average price of listings per zip code
+price_average <- aggregate(air.bnb.dataset$price,
+                           by=list(air.bnb.dataset$zipcode),
+                           FUN="mean",na.rm=TRUE)
+names(price_average) <- c("zipcode","mean.price")
+price_average$mean.price <- round(price_average$mean.price,2)
+
+# Download zip code boundaries for NYC
+url <- "https://data.cityofnewyork.us/api/views/i8iw-xf4u/files/YObIR0MbpUVA0EpQzZSq5x55FzKGM2ejSeahdvjqR20?filename=ZIP_CODE_040114.zip"
+fil <- basename(url)   
+base.loc <- regexec("(?<=filename=).*[.]zip",fil,perl=TRUE)
+base.str <- substr(fil, base.loc, nchar(fil))
+if(!file.exists(base.str)){
+  download.file(url, base.str)
+} 
+
+fils <- unzip(base.str, exdir = "nyc_zip")
+
+# Read shapefiles
+nyc <- readOGR("nyc_zip", ogrListLayers(fils[1])[1], stringsAsFactors=FALSE)
+nyc@data$id <- rownames(nyc@data)
+nyc.points <- fortify(nyc, region="id")
+
+# Partition price data into ranges/intervals
+cut.dat <- cut(price_average$mean.price, breaks = nclass.FD(price_average$mean.price), include.lowest = TRUE)
+ranges <- table(cut.dat)
+
+price_average$price.range <- as.integer(cut.dat)
+
+# Join price data to shapefile data
+nyc@data <- merge(price_average, nyc@data, by.x='zipcode', by.y='ZIPCODE', all.y=TRUE)
+
+nyc.df <- merge(nyc.points, nyc@data, by="id")
+
+
+gg <- ggplot()
+gg <- gg + geom_map(data=nyc.df, map=nyc.df,
+                    aes(x=long, y=lat, map_id=id, fill=mean.price),
+                    color="black",  size=0.25)
+gg <- gg + coord_equal() 
+gg <- gg + theme_map()
+gg <- gg + theme(legend.position = "bottom")
+gg <- gg + scale_fill_gradientn(colours = terrain.colors(10))
+
+gg
+```
+
+After further analysis, we found out that some of the listings have more than one bedroom and some of the listings are actually listed as the entire house or apartment. We reasoned that the average price in Manhattan is the lowest of all the boroughs is because of the type of listing or the number of bedrooms in those listings.
+
+As such, we tried to map the average price per room (for every listing, divide the price by the number of the bedrooms) on the zipcode map. While doing this, we encountered a problem: some of the listings have zero bedrooms, such that it is impossible to divide by the number of rooms for those listings. In this case, we used a method similar to the Laplace method from Bayes classification. Since we are considering the relative price of these regions, we added one to the number of bedrooms for every listing. Then we mapped the average price for bedroom on the zipcode map, and the result is largely the same. We also tried to map the median price for the every zipcode, giving similar results.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+## Attempt 2: Map average price of listings per zip code, dividing price by (number of bedrooms plus 1)
+
+
+price_per_room_average <- aggregate(air.bnb.dataset$price.per.room,
+                           by=list(air.bnb.dataset$zipcode),
+                           FUN="mean",na.rm=TRUE)
+names(price_per_room_average) <- c("zipcode","mean.price.per.room")
+price_per_room_average$mean.price.per.room <- round(price_per_room_average$mean.price.per.room,2)
+
+
+# Join price data to shapefile data
+nyc@data <- merge(price_per_room_average, nyc@data, by='zipcode', all.y=TRUE)
+
+nyc.df <- merge(nyc.points, nyc@data, by="id")
+
+
+gg <- ggplot()
+gg <- gg + geom_map(data=nyc.df, map=nyc.df,
+                    aes(x=long, y=lat, map_id=id, fill=mean.price.per.room),
+                    color="black",  size=0.25)
+gg <- gg + coord_equal() 
+gg <- gg + theme_map()
+gg <- gg + theme(legend.position = "bottom")
+gg <- gg + scale_fill_gradientn(colours = terrain.colors(10))
+
+gg
+```
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+## Attempt 3: Map median price of listings per zip code
+
+price_median <- aggregate(air.bnb.dataset$price,
+                           by=list(air.bnb.dataset$zipcode),
+                           FUN="median",na.rm=TRUE)
+names(price_median) <- c("zipcode","median.price")
+price_median$median.price <- round(price_median$median.price,2)
+
+# Join price data to shapefile data
+nyc@data <- merge(price_median, nyc@data, by='zipcode', all.y=TRUE)
+
+nyc.df <- merge(nyc.points, nyc@data, by="id")
+
+
+
+gg <- ggplot()
+gg <- gg + geom_map(data=nyc.df, map=nyc.df,
+                    aes(x=long, y=lat, map_id=id, fill=median.price),
+                    color="black",  size=0.25)
+gg <- gg + coord_equal() 
+gg <- gg + theme_map()
+gg <- gg + theme(legend.position = "bottom")
+gg <- gg + scale_fill_gradientn(colours = terrain.colors(10))
+
+gg
+```
+
+The results seem counterintuitive. The renting price in Manhattan is high, similar to the price of hotels, so we expected the average price in Manhattan to be more expensive than other boroughs. However, after further analysis, we think the reason the average price in Manhattan is higher is that there are more hosts in Manhattan and there are more listings in Manhattan. Airbnb is a market and the competitive market in Manhattan might force the price down, which is why the average price in Manhattan is lower. Our reasoning is supported by the fact that there many more hosts in Manhattan than in any other borough. We infer that the listing market in Manhattan is much more competitive and there are more listings in Manhattan. Also, the hosts in other areas (especially the hosts in more distant parts of Brooklyn and the Bronx) might just list their home and put little effort in the listing market.  
