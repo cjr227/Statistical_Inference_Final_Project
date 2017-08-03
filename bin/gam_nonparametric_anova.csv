@@ -1,0 +1,18 @@
+"","Npar Df","Npar F","Pr(F)"
+"(Intercept)",NA,NA,NA
+"room_type",NA,NA,NA
+"neighbourhood_group_cleansed",NA,NA,NA
+"bedrooms",NA,NA,NA
+"bathrooms",NA,NA,NA
+"s(minimum_nights, 2)",1,32.2387111632324,1.38055235021639e-08
+"review_scores_rating",NA,NA,NA
+"review_scores_cleanliness",NA,NA,NA
+"review_scores_communication",NA,NA,NA
+"review_scores_location",NA,NA,NA
+"review_scores_value",NA,NA,NA
+"Amenities.indoorfireplace",NA,NA,NA
+"Amenities.airconditioning",NA,NA,NA
+"Amenities.cabletv",NA,NA,NA
+"Amenities.doorman",NA,NA,NA
+"s(accommodates, 5)",4,47.1117898440283,0
+"distance_in_meters",NA,NA,NA
