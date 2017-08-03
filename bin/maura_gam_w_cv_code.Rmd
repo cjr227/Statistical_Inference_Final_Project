@@ -10,10 +10,10 @@ train <- sample(1:nrow(gam.dataset),10000,replace = FALSE)
 gam.dataset.sample <- gam.dataset[train,]
 model1 <- lm(log(price) ~ ., gam.dataset.sample)
 
-#Variables with ver high statistical significance (high absolute t-value)
+#Variables with very high statistical significance (high absolute t-value)
 row.names(summary(model1)$coe[which(abs(summary(model1)$coe[,3])>10),])
 
-#Use these + ratings and distance whigh are prime canidates for testing for non-linearity
+#Use these + ratings and distance which are prime candidates for testing for non-linearity
 base.formula <- log(price) ~ room_type + accommodates + bedrooms + availability_60 + price.per.room + num_amenities + distance_in_meters + review_scores_rating + review_scores_accuracy + review_scores_cleanliness + review_scores_checkin + review_scores_communication + review_scores_location + review_scores_value   
 
 

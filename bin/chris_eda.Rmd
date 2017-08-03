@@ -168,6 +168,5 @@ NumericVariables <- c("distance_in_meters","Amenities.wirelessinternet","Couple"
 airbnb.Numeric <- air.bnb.dataset[,(names(air.bnb.dataset) %in% NumericVariables)]
 AllCor <- cor(airbnb.Numeric,airbnb.Numeric$price, use = "complete")
 
-# Correlation between each numeric variable and price
-kable(AllCor, digits=2)
+
 ```

@@ -1,0 +1,45 @@
+#### One Way Anova for price by property type
+
+We apply one-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types have the same mean price against the alternative hypothesis that at least one pair of property types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of $< 2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types likely have different mean prices.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# One Way Anova (Completely Randomized Design)
+# Price vs. Property Type
+air.bnb.dataset.Review <- air.bnb.dataset[complete.cases(air.bnb.dataset$price),c("review_scores_rating","property_type","room_type","price")]
+one_way.fit <- aov(log(price+1) ~ property_type, data=air.bnb.dataset.Review)
+layout(matrix(c(1,2,3,4),2,2))
+plot(one_way.fit)
+
+
+
+```
+
+The visualization of the residuals vs. fitted model results shows that the residual error increases as the fitted value increases. These results suggest that there is a non-constant variance of the error terms, such that the assumption of homoscedasticity is violated.
+
+The normal Q-Q plot shows a curved fit that is close to the diagonal line, suggesting that the residual data is close to a Normal distribution.
+
+The residuals vs. leverage plot shows that the data points with the least leverage have the most variance in their residual error. This finding suggests that the ANOVA model does not fit the price for more common residence types as well as less common residence types.
+
+The AIC value of this model is `r AIC(one_way.fit)`, and the BIC value of this model is `r BIC(one_way.fit)`.
+
+#### Two Way Anova for Price vs. Property Type & Room Type
+
+We apply two-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types and room types have the same mean price against the alternative hypothesis that at least one pair of property types & room types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of $< 2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types and room types likely have different mean prices.
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Two Way Factorial Design 
+# Price vs. Property Type & Room Type
+two_way.fit <- aov(log(price+1) ~ property_type*room_type, data=air.bnb.dataset.Review)
+layout(matrix(c(1,2,3,4),2,2))
+plot(two_way.fit)
+```
+
+The visualization of the residuals vs. fitted model results shows that the residual error has roughly the same range as the fitted value increases.These results suggest that there is a constant variance of the error terms, such that the assumption of homoscedasticity is not violated.
+
+The normal Q-Q plot shows a curved fit that is close to the diagonal line for most residual points, suggesting that the residual data is close to a Normal distribution.
+
+The residuals vs. leverage plot shows that the data points with the least leverage have the most variance in their residual error. This finding suggests that the ANOVA model does not fit the price for more common property type & room type combinations as well as less common property type & room type combinations.
+
+The AIC value of this model is `r AIC(two_way.fit)`, and the BIC value of this model is `r BIC(two_way.fit)`.
+
+

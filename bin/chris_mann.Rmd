@@ -1,0 +1,7 @@
+#### Mann-Whitney Wilcoxon for Superhost & price
+
+We use the Mann-Whitney Wilcoxon test to test at a rejection level of 0.05 the null hypothesis that superhost and non-superhosts have prices from the same distribution against the alternative hypothesis that they are derived from different distributions. This test results in a p-value of $1.217 \times 10^{-5}$. Therefore, we can reject the null hypothesis, as it is likely that superhosts and non-superhosts charge prices from different distributions.
+
+#### Mann-Whitney Wilcoxon for Superhost & distance to subway
+
+We use the Mann-Whitney Wilcoxon test to test at a rejection level of 0.05 the null hypothesis that superhost and non-superhosts have distances to the nearest subway from the same distribution against the alternative hypothesis that they are derived from different distributions. This test results in a p-value of 0.004824. Therefore, we can reject the null hypothesis, as it is likely that superhosts and non-superhosts have nearest subway stop distances from different distributions.

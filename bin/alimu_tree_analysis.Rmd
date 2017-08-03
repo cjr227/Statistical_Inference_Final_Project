@@ -1,0 +1,46 @@
+---
+title: "tree_analysis"
+author: "alimu"
+date: "December 14, 2015"
+output: html_document
+---
+
+Using a decision tree, we classified each listing for whether or not the host is a "superhost".
+After the initial EDA, we chose 16 variables for training the tree model. Since we have a sufficiently large number of observations in our dataset, we randomly divided the dataset into two partitions: training set and test set. About $\frac{5}{6}$ of the data is used for training and the remaining $\frac{1}{6}$ of the data is used for testing. 
+
+When training the model, we used Gini index and Information Gain as entropy measures for developing the tree.
+
+After training the model, we tested it on the testing dataset, resulting in an overall accuracy rate of 96.4% for both the Gini and Information Gain splitting indices. 
+
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+
+## Subway station distance variable is not included here
+
+#### This is using the gini index for the tree partition.
+tree.training$distance_in_meters <- NULL
+tree.testing$distance_in_meters <- NULL
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit)
+is_super_host.fit.gini <- predict(tree.is_super_host, tree.testing, type="class")
+gini.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(gini.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host)
+text(tree.is_super_host, use.n=TRUE)
+
+
+#### This is using the information gain for the tree partition. 
+
+tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit,parms=list(split='information'))
+is_super_host.fit.ig <- predict(tree.is_super_host, tree.testing, type="class")
+ig.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
+print(ig.proportion.correct)
+
+par(xpd = TRUE)
+plot(tree.is_super_host)
+text(tree.is_super_host, use.n=TRUE)
+
+
+```

@@ -1,0 +1,114 @@
+---
+output: word_document
+---
+
+#### Applying the Lasso regression for informing subset selection ideas for predictors variables
+
+To aid our subset selection process for regressions on predicting one of our *y* variables - *price* or $\log(price)$, instead of studying the relationships of several hundred individual predictor variables (after dummifying all factors) with the dependent varaible via scatterplots or correlation matrices, we also wish to rely on the Lasso regression with regularization, a technique involving all *p* predictors where some coefficients without much explanatory power would be effectively constrained to 0. We outline the implementation process and outcome below. 
+
+
+#### Challenges we overcame in implementing the Lasso with glmnet in R
+
+We overcame a few challenges before being able to implement the Lasso regression with the ```glmnet()``` function. 
+
+**1.glmnet() function's inability to handle NA values**
+
+In the data cleaning stage, for some numerical variables where it made sense to insert \$0 values for *N/A* or missing values we did so, such as for security fee and cleaning fee. For other variables such as different ratinges, we left the *N/A* values for missing inputs. However,feeding our matrix of predictor variables into ```glmnet()``` with *N/A* values appear to lead to the following error:```"NA/NaN/Inf in foreign function call"``` even after trying to pass the option of ```"na.action=na.pass"``` into the function.
+
+We proceeded to exclude row items with *N/A*s or missing values before feeding the data into our predictor variable matrix with the ```model.matrix()``` function. Fortunately, excluding observations with *N/A*s from our original data set still leaves us with more than 19,000 observations for our test and training sets. 
+
+
+**2.Lasso regression appear to be thrown off by select unnecessary categorical variables**
+
+Our first attempt at applying the Lasso regression on the entire set of *p* original predictor variables (92 total) appeared to be unsuccessful given the very limited number of predictor variables that came out with a positive coefficient. We suspected including a number of not predictively meaningful *x* variables such as IDs and a problematic date variable, all of which have a high number of levels, may have led to problems for Lasso regression's implementation. We therefore decided to exclude such variables from our predictor matrix, afterwhich the Lasso regression results turn out to be more sensible.  
+
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+### TODO: Match created training set with original training set (in features) as much as possible
+# Ex. Create field that counts number of amenities
+
+## 1.glmnet() function's inability to handle NA values
+air.bnb.dataset.complete <- air.bnb.dataset[complete.cases(air.bnb.dataset),]
+
+
+## 2.Lasso regression appear to be thrown off by select unnecessary categorical variables
+to.drop <- c("id","host_id","host_since","host_verifications","host_name","amenities",
+             "Host.Ver.facebook","Host.Ver.google","Host.Ver.jumio","Host.Ver.email",
+             "Host.Ver.kba","Host.Ver.linkedin","Host.Ver.manualoffline",
+             "Host.Ver.manualonline","Host.Ver.none","Host.Ver.phone",
+             "Host.Ver.photographer","Host.Ver.reviews","Host.Ver.sentid",
+             "Host.Ver.weibo",             
+             "price.per.room","number.of.hosts","num_amenities","distance_in_meters")
+
+air.bnb.dataset.complete <- air.bnb.dataset.complete[,!(names(air.bnb.dataset.complete) %in% to.drop)]
+predictors <- model.matrix(price~ ., data=air.bnb.dataset.complete)[,-1]
+y <- air.bnb.dataset.complete[rownames(predictors), "price"] 
+
+# Training set
+train <- sample(1:nrow(predictors), 15000) 
+x.train <- predictors[train, ] 
+y.train <- y[train]
+
+# Testing set
+test <- (-train) 
+x.test <- predictors[test, ] 
+y.test <- y[test] 
+grid <- 10^seq(10, -2, length=100)
+lasso.mod <- glmnet(x.train, y.train, alpha=1, lambda=grid) 
+cv.out <- cv.glmnet(x.train, y.train, alpha=1) 
+plot(lasso.mod)
+plot(cv.out) 
+bestlam <- cv.out$lambda.min 
+
+# 2.5 Ridge Regression
+ridge.mod <- glmnet(x.train, y.train, alpha=0, lambda=grid) 
+cv.ridge.out <- cv.glmnet(x.train, y.train, alpha=0) 
+bestlamridge <- cv.ridge.out$lambda.min 
+```
+
+
+
+#### Lasso subset selection suggests hosts' info and neighborhood varaibles are associated with price
+
+**Highlights of predictor variables with explanatory power**
+
+We examined the list of predictor variables with non-zero coefficients after running the Lasso with an optimal Lambda selected by cross-validation at `r round(bestlam,1)`. The first list of coefficients shown below involves those variables whose coefficients have been shrunken to 0 by the regularization technique. The second list shows non-zero coefficients from our Lasso regression. 
+
+This list of non-zero coefficients, suggesting the associated predictors have some degree of association with our dependent variable *y* of price, provide some interesting insights about which variables explain the movement of price. 
+
+The first set of variables involve information about the host. In particular, the categorical variable *host_is_superhost* (whether a listing's host is a "superhost") is suggested to have a meaningful positive relationship with the price variable. Another is *host_has_profile_pict*.
+The second set of variables with non-zero coefficients come from neighborhood factor variables, especially for *neighbourhood_cleansedBull\'s Head*, *neighbourhood_cleansedBelle Harbor*, and *neighbourhood_cleansedBronxdale*, which have sizeable positive or negative cofficients. The coefficients suggest listings being situated in these select neighborhoods have a meaningful impact on the price level for these listings.
+
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Highlights of predictor variables with explanatory power
+out <- glmnet(predictors, y, alpha=1, lambda=bestlam)
+lasso.coef <- predict(out, type="coefficients", s=bestlam)[1:50, ] 
+print(lasso.coef)
+coeflist <- lasso.coef[lasso.coef!=0]
+print(coeflist)
+```
+
+
+
+#### Comparing our Lasso vs. Ridge regression performance
+
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Comparing our Lasso vs. Ridge regression performance 
+lasso.pred <- predict(lasso.mod, s=bestlam, newx=x.test) 
+print("MSE for Lasso Regression model:")
+mean((lasso.pred - y.test)^2) 
+
+ridge.pred <- predict(ridge.mod, s=bestlamridge, newx=x.test) 
+print("MSE for Ridge Regression model:")
+mean((ridge.pred - y.test)^2)
+```
+
+
+**Ridge regression has slightly more predictive power than Lasso**
+
+Finally, we wished to run the ridge regression also to compare whether one model may have better explanatory ability than the other. 
+Our results on mean squared error for the two models shown above suggests our ridge regression model has a lower MSE and hence better explanatory ability. We believe this is because the lasso regularization technique's subset selection ability forces unnecessary variables' coefficients to zero and as a result returns a more predictively meaningful subset of predictors for the regression and thus enhances the model performance. 
+
+

@@ -82,27 +82,69 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 ## Model Results and Diagnostics
 
-###1)ManWhitneyWilcox test
+### 1) Mann-Whitney Wilcoxon test
 
 ```{r, child='chris_mann.Rmd'}
 ```
 
 
-###2) Classification for predicting y:superhost and neighborhood
+### 2) Classification for predicting y:superhost and neighborhood
 
-###3) ANOVA analysis
+```{r, child='alimu_QDA_LDA_analysis.Rmd'}
+```
+
+```{r, child='alimu_tree_analysis.Rmd'}
+```
+
+### 3) ANOVA analysis
 
 ```{r, child='chris_anova.Rmd'}
 ```
 
-###4) Lasso regression for predicting y:price
+### 4) Lasso regression for predicting y:price
 
-###5) Non-linear models: splines + GAM 
+```{r, child='christine_lassoREV.Rmd'}
+```
+
+### 5) Non-linear models: splines + GAM 
+
+```{r, child='christine_GAMonpriceREV.Rmd'}
+```
+
+```{r, child='gam_maura.Rmd'}
+```
 
 ## Findings Summary: Comparing the models
 
+#### Some counter-intuitive insights gleaned from Explorative Data Analysis and Regression analyses
+
+-??? The majority of airbnb listings have a very high review rating score of 90+ - does this suggest review ratings overall may not help distinguish between the true attractiveness or quality of listings as much as we would have thought?
+
+-??? There is not a high association between the variables of price and review rating score per our regression coefficient output;
+
+- While our custom-created variable *Distance to Nearest Subway* does not appear to be a meaningful predictor of either *Price* or *Superhost* status, we noticed in our GAM regression that *review_scores_location* variable has a very statistically significant positive coefficient in its relationship to *Price*. Perhaps the preference for proximity to public transportation is reflected instead in this variable;
+
+-??? To our surprise, the average Airbnb rental price for listings in Manhattan is lower than those for other boroughs, we suspect due to a much higher number of host listings and thus more intense competition within the Manhattan market.
+
+#### Inference-based analyses on the Price variable vs. Property/Room Type and Superhost Status
+
+-??? Our ANOVA analysis demonstrates a real difference in price based on both property type and room type.
+
+-??? The Mann-Whitney-Wilcox tests points to a difference in price range/distribution based on whether or not a host is a superhost.
+
+-??? We can infer from the decision trees models value ranges that would lead to a host being a superhost: high number of reviews, high review score, high host response rate, and high rate of reviews per month.
+
+####Regression Models: Linear Regression with Lasso & General Addictive Models
+
+-??? Applying a Lasso regression with regularization to infer about the subset of predictor variables having non-zero explanatory power for the Price variable, we learned that two major groups of predictors appear to have more meaningful coefficients than the rest - predictors on host information and neighborhoods.
+
+-??? From our GAM models on the Price variable, we can see from the Summary output of our highest performing gam.6 model that the most meaningful predictors with the highest relevance in this regression are: *room_type*, *review_scores_location*, *ns(security_deposit, 4)*, *review_scores_accuracy*, and *ns(Num_Amenities, 4)*. [Note: ```ns()``` indicates a natural spline technique on the variable was applied]. Furthermore, we were able to conclude with an ANOVA analysis on the different models that several variables do appear to have a non-linear relationship with the y variable.
+
+-??? We were also able to fit a highly significant GAM model on logged price. While the MSE of this model is larger than the MSE of the price model alone when predictions are put on a non-logged scale, we would recommend further analysis before drawing conclusions that a linear relationship is better than a log-linear one here. (It's possible that high residuals on the outliers make MSE a less reliable comparison if we care less about the outliers).
 
 ## Conclusions
+
+The results of this project are based on our collaborative work over the course of a short period of time. Given more time, we would like to test additional information such as neighborhood population density, household income, and zoning information (% residential) as well as use more sophisticated techniques such as machine learning and natural language processing.
 
 # Appendix
 
@@ -110,9 +152,16 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 ### General Data Exploration
 
+![Scatterplot xsubset1](yx1scatterplot.png)
+
+![Scatterplot xsubset2](yx2scatterplot.png)
+
 #### Correlation of each Variable with Price
 
-
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+# Correlation between each numeric variable and price
+kable(AllCor, digits=2)
+```
 
 ### Data Manipulation and Cleaning
 

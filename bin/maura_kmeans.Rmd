@@ -1,0 +1,96 @@
+---
+output: pdf_document
+---
+
+### Treatment of Neighborhoods
+
+The original dataset contains 205 distinct neighborhoods with anywhere from 1 to >2,500 listings.  Despite the size of the data, 205 neighborhoods is too many for us to use in models.  Inference on so many factors is outside the scope of the project and due to the unbalanced distribution of listings (many neighborhoods have fewer than 20), models built with the original neighborhoods are likely to overfit the training set and hold up poorly to cross-validation.
+
+Even though we aren't using the original neighborhoods, we would still like to use some information from this field in our analysis.  One possible solution to this dilemma is clustering neighborhoods based on shared characteristics.
+
+We clustered the 205 neighborhoods based on location (latitude, longitude and borough), mix of property types, and average distance to a subway station.  In a more comprehensive analysis we would test clustering based on external metrics such as population density, household income, and zoning information (% residential) or using these in the models directly.
+
+K-means was chosen as our clustering algorithm with $k=10$.  10 was chosen based on the reduction in distances from points to their cluster centers as well as cluster sizes (At least 25 listings/cluster).  After chosing *K*, we ran the algorithm a few times and chose the output with at least 25 listings per cluster (K-means will often pick a local minimum so running the algorithm a few times can give different solutions). 
+
+```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
+
+inclusions <- c("neighbourhood_cleansed","property_type","neighbourhood_group_cleansed", "latitude","longitude", "distance_in_meters")
+
+cluster.dataset <- air.bnb.dataset[,(names(air.bnb.dataset) %in% inclusions)]
+tmp <- cbind(cluster.dataset$neighbourhood_cleansed, as.data.frame(as.matrix(model.matrix(neighbourhood_cleansed~.,cluster.dataset)))[,-1])
+tmp <- as.data.table(melt(tmp))
+
+# Rollup
+tmp <- tmp[,mean(value),by=c("cluster.dataset$neighbourhood_cleansed", "variable")]
+names(tmp)[1] <- "nhood"
+
+# Mean Center
+tmp <- tmp[,v2:=(V1)/mean(V1), by=c("variable")]
+
+# Normalize
+tmp <- tmp[,v3:=(V1-mean(V1))/sd(V1), by=c("variable")]
+
+# Put on zero-one scale so we don't overweight rare categories
+tmp <- tmp[,v4:=(V1)/max(V1), by=c("variable")]
+
+# Try Mean-Centered and not mean centered
+cl.data1 <- as.data.frame(dcast(tmp, nhood~variable, value.var = "V1"))
+cl.data2 <- as.data.frame(dcast(tmp, nhood~variable, value.var = "v2"))
+cl.data3 <- as.data.frame(dcast(tmp, nhood~variable, value.var = "v3"))
+cl.data4 <- as.data.frame(dcast(tmp, nhood~variable, value.var = "v4"))
+row.names(cl.data1) <- cl.data1$nhood
+row.names(cl.data2) <- cl.data2$nhood
+row.names(cl.data3) <- cl.data3$nhood
+row.names(cl.data4) <- cl.data4$nhood
+cl.data1 <- cl.data1[,-1]
+cl.data4 <- cl.data4[,-1]
+cl.data3 <- cl.data3[,-1]
+cl.data2 <- cl.data2[,-1]
+cl.data5 <- cl.data1[,-1]
+
+# Normalize distance
+cl.data5$distance_in_meters <- (cl.data5$distance_in_meters - mean(cl.data5$distance_in_meters))/sd(cl.data5$distance_in_meters)
+
+NumClust <- c()
+Clustin <- c()
+Clustbet <- c()
+MC <- c()
+
+i <- 1
+
+for(m in 1:5){
+  if(m==2){
+    cl.data <- cl.data2
+  } else if(m==3){
+    cl.data <- cl.data3
+  } else if(m==4){
+    cl.data <- cl.data4
+  } else if(m==5){
+    cl.data <- cl.data5
+  }else {
+    cl.data <- cl.data1
+  }
+  
+  # test 5-25 Clusters
+  for(k in 5:30){
+    # Kmeans can converge to local maximums so run each cluster a few times
+    for(j in 1:10){
+      tmp.cl <- kmeans(cl.data,k)
+      NumClust[i] <- k
+      Clustin[i] <- tmp.cl$tot.wi
+      Clustbet[i] <- tmp.cl$betw
+      MC[i] <- m
+      i <- i+1
+    }
+  }
+}
+
+chooseK <- as.data.frame(cbind(NumClust, Clustin, Clustbet, MC))
+qplot(NumClust,Clustin/100, data=chooseK[MC==5,])+geom_smooth(method="loess")+xlab("Number of Clusters")+ylab("Neightborhood Distance from Cluster Center")+theme(axis.text.y = element_blank())
+
+use.clusters <- kmeans(cl.data5,10)
+table(test, use.clusters$cluster[test])
+air.bnb.dataset$neighborhood_cluster <- as.factor(paste("cluster.", use.clusters$cluster[air.bnb.dataset$neighbourhood_cleansed], sep=""))
+```
+
+Neighborhood to cluster mapping and number of listings in appendix

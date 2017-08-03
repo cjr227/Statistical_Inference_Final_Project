@@ -1,0 +1,8 @@
+---
+title: "alimu_QDA&LDA analysis"
+author: "alimu"
+date: "December 14, 2015"
+output: html_document
+---
+
+As a classification method, we attempted Linear Discriminant Analysis (LDA) and Quadratic Discriminant Analysis (QDA) on the dataset. As with the tree classification, we predicted whether or not a host was a "superhost". However, since QDA and LDA use Bayes' theorem, and because most of the variables in our dataset are numeric and have wide ranges, we have deduced that QDA and LDA are not appropriate classification methods for our data. Comparing QDA, LDA and the decision tree, the tree classification is the most efficient one. As such, we recommend using the tree classification method for predicting whether the host is a superhost. 
