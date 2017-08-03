@@ -18,7 +18,7 @@ drops <- c("listing_url", "scrape_id", "last_scraped",
 "jurisdiction_names", "requires_license", 
  "license", "experiences_offered",
 "host_listings_count", "city", "state", 
- "host_neighbourhood", "square_feet","host_name")
+ "host_neighbourhood", "square_feet")
 
 air.bnb.dataset <- listings[,!(names(listings) %in% drops)]
 
@@ -164,6 +164,8 @@ find.all.hosts <- function(host_names){
 
 
 air.bnb.dataset$number.of.hosts <- sapply(air.bnb.dataset$host_name,FUN = find.all.hosts) 
+
+air.bnb.dataset$host_name <- NULL
 
 ```
 

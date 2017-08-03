@@ -62,12 +62,13 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 ### Prep and Cleaning
 
+```{r test-main, child='datacleaningcode.Rmd'}
+```
 
 ```{r test-main, child='datacleaningtext.Rmd'}
 ```
 
-```{r test-main, child='datacleaningcode.Rmd'}
-```
+
 
 ## EDA
 
