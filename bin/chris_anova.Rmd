@@ -1,6 +1,6 @@
 #### One Way Anova for price by property type
 
-We apply one-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types have the same mean price against the alternative hypothesis that at least one pair of property types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of $< 2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types likely have different mean prices.
+We apply one-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types have the same mean price against the alternative hypothesis that at least one pair of property types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of less than $2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types likely have different mean prices.
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 # One Way Anova (Completely Randomized Design)
@@ -20,11 +20,11 @@ The normal Q-Q plot shows a curved fit that is close to the diagonal line, sugge
 
 The residuals vs. leverage plot shows that the data points with the least leverage have the most variance in their residual error. This finding suggests that the ANOVA model does not fit the price for more common residence types as well as less common residence types.
 
-The AIC value of this model is `r AIC(one_way.fit)`, and the BIC value of this model is `r BIC(one_way.fit)`.
+The AIC value of this model is 57142.26, and the BIC value of this model is 57317.08.
 
 #### Two Way Anova for Price vs. Property Type & Room Type
 
-We apply two-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types and room types have the same mean price against the alternative hypothesis that at least one pair of property types & room types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of $< 2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types and room types likely have different mean prices.
+We apply two-way Analysis of Variance (ANOVA) to test at a rejection level of 0.05 the null hypothesis that different property types and room types have the same mean price against the alternative hypothesis that at least one pair of property types & room types has different mean prices. This test is done on the assumption that the prices are derived from a Gaussian distribution with an unknown but fixed variance. This test results in a p-value of less than $2 \times 10^{-16}$. Therefore, we can reject the null hypothesis, as the different property types and room types likely have different mean prices.
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 # Two Way Factorial Design 
@@ -40,6 +40,6 @@ The normal Q-Q plot shows a curved fit that is close to the diagonal line for mo
 
 The residuals vs. leverage plot shows that the data points with the least leverage have the most variance in their residual error. This finding suggests that the ANOVA model does not fit the price for more common property type & room type combinations as well as less common property type & room type combinations.
 
-The AIC value of this model is `r AIC(two_way.fit)`, and the BIC value of this model is `r BIC(two_way.fit)`.
+The AIC value of this model is 40287.79, and the BIC value of this model is 40637.43.
 
 

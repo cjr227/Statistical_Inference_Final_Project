@@ -14,7 +14,7 @@ package_list <- c("knitr","ggplot2","RTextTools",
                   "MASS","rpart","glmnet","gam","sp",
                   "rgdal","rgeos","ggthemes","maptools",
                   'mapproj', 'digest',"rlang","bindrcpp",
-                  'glue','pkgconfig','tibble',"ggmap")
+                  'glue','pkgconfig','tibble',"ggmap", "rpart.plot","pander")
 for(i in 1:length(package_list)){
   if(package_list[i]=="ggmap"){
     devtools::install_github("dkahle/ggmap")
@@ -24,7 +24,6 @@ for(i in 1:length(package_list)){
   } 
 }
 
-devtools::install_github("dkahle/ggmap")
 
 library(knitr)
 library(ggplot2)
@@ -44,7 +43,9 @@ library(rgdal)
 library(rgeos)
 library(ggthemes)
 library(maptools)
-opts_chunk$set(tidy.opts=list(width.cutoff=50))
+library(rpart.plot)
+library(pander)
+opts_chunk$set(tidy.opts=list(width.cutoff=50),tidy=TRUE)
 
 set.seed(123)
 ```
@@ -62,8 +63,6 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 ### Prep and Cleaning
 
-```{r test-main, child='datacleaningcode.Rmd'}
-```
 
 ```{r test-main, child='datacleaningtext.Rmd'}
 ```
@@ -119,29 +118,29 @@ We used publicly available Airbnb listings data from http://insideairbnb.com/. W
 
 #### Some counter-intuitive insights gleaned from Explorative Data Analysis and Regression analyses
 
--??? The majority of airbnb listings have a very high review rating score of 90+ - does this suggest review ratings overall may not help distinguish between the true attractiveness or quality of listings as much as we would have thought?
+- The majority of airbnb listings have a very high review rating score of 90+ - does this suggest review ratings overall may not help distinguish between the true attractiveness or quality of listings as much as we would have thought?
 
--??? There is not a high association between the variables of price and review rating score per our regression coefficient output;
+- There is not a high association between the variables of price and review rating score per our regression coefficient output;
 
 - While our custom-created variable *Distance to Nearest Subway* does not appear to be a meaningful predictor of either *Price* or *Superhost* status, we noticed in our GAM regression that *review_scores_location* variable has a very statistically significant positive coefficient in its relationship to *Price*. Perhaps the preference for proximity to public transportation is reflected instead in this variable;
 
--??? To our surprise, the average Airbnb rental price for listings in Manhattan is lower than those for other boroughs, we suspect due to a much higher number of host listings and thus more intense competition within the Manhattan market.
+- To our surprise, the average Airbnb rental price for listings in Manhattan is lower than those for other boroughs, we suspect due to a much higher number of host listings and thus more intense competition within the Manhattan market.
 
 #### Inference-based analyses on the Price variable vs. Property/Room Type and Superhost Status
 
--??? Our ANOVA analysis demonstrates a real difference in price based on both property type and room type.
+- Our ANOVA analysis demonstrates a real difference in price based on both property type and room type.
 
--??? The Mann-Whitney-Wilcox tests points to a difference in price range/distribution based on whether or not a host is a superhost.
+- The Mann-Whitney-Wilcox tests points to a difference in price range/distribution based on whether or not a host is a superhost.
 
--??? We can infer from the decision trees models value ranges that would lead to a host being a superhost: high number of reviews, high review score, high host response rate, and high rate of reviews per month.
+- We can infer from the decision trees models value ranges that would lead to a host being a superhost: high number of reviews, high review score, high host response rate, and high rate of reviews per month.
 
-####Regression Models: Linear Regression with Lasso & General Addictive Models
+#### Regression Models: Linear Regression with Lasso & General Addictive Models
 
--??? Applying a Lasso regression with regularization to infer about the subset of predictor variables having non-zero explanatory power for the Price variable, we learned that two major groups of predictors appear to have more meaningful coefficients than the rest - predictors on host information and neighborhoods.
+- Applying a Lasso regression with regularization to infer about the subset of predictor variables having non-zero explanatory power for the Price variable, we learned that two major groups of predictors appear to have more meaningful coefficients than the rest - predictors on host information and neighborhoods.
 
--??? From our GAM models on the Price variable, we can see from the Summary output of our highest performing gam.6 model that the most meaningful predictors with the highest relevance in this regression are: *room_type*, *review_scores_location*, *ns(security_deposit, 4)*, *review_scores_accuracy*, and *ns(Num_Amenities, 4)*. [Note: ```ns()``` indicates a natural spline technique on the variable was applied]. Furthermore, we were able to conclude with an ANOVA analysis on the different models that several variables do appear to have a non-linear relationship with the y variable.
+- From our GAM models on the Price variable, we can see from the Summary output of our highest performing gam.6 model that the most meaningful predictors with the highest relevance in this regression are: *room_type*, *review_scores_location*, *ns(security_deposit, 4)*, *review_scores_accuracy*, and *ns(Num_Amenities, 4)*. [Note: ```ns()``` indicates a natural spline technique on the variable was applied]. Furthermore, we were able to conclude with an ANOVA analysis on the different models that several variables do appear to have a non-linear relationship with the y variable.
 
--??? We were also able to fit a highly significant GAM model on logged price. While the MSE of this model is larger than the MSE of the price model alone when predictions are put on a non-logged scale, we would recommend further analysis before drawing conclusions that a linear relationship is better than a log-linear one here. (It's possible that high residuals on the outliers make MSE a less reliable comparison if we care less about the outliers).
+- We were also able to fit a highly significant GAM model on logged price. While the MSE of this model is larger than the MSE of the price model alone when predictions are put on a non-logged scale, we would recommend further analysis before drawing conclusions that a linear relationship is better than a log-linear one here. (It's possible that high residuals on the outliers make MSE a less reliable comparison if we care less about the outliers).
 
 ## Conclusions
 
@@ -161,7 +160,7 @@ The results of this project are based on our collaborative work over the course 
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 # Correlation between each numeric variable and price
-kable(AllCor, digits=2)
+kable(AllCor[,1], digits=2,results = 'asis')
 ```
 
 ### Data Manipulation and Cleaning
@@ -211,7 +210,7 @@ print(drop.3)
 ```
 
 
-```{r test-main, child='datacleaningcode.Rmd', eval=FALSE}
+```{r, child='datacleaningcode.Rmd'}
 ```
 
 ### EDA
@@ -255,5 +254,5 @@ print(drop.3)
 #### Number of listings by neighbohood and cluster
 
 ```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
-kable(table(airbnb$neighbourhood_cleansed, gsub("cluster.", "", airbnb$neighborhood_cluster)))
+kable(table(air.bnb.dataset$neighbourhood_cleansed, gsub("cluster.", "", air.bnb.dataset$neighborhood_cluster)))
 ```

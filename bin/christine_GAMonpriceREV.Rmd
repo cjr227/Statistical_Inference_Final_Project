@@ -131,6 +131,7 @@ We finally arrived at a subset of variables for our last *gam.6* model by adding
 ```
 
 **Gam.6 model with most complete model subset: Plots of the relationship between each feature and the response in the fitted model**
+
 ![gam6 plot](gam6plot.png)
 
 

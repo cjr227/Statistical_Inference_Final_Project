@@ -14,7 +14,10 @@ names(price_average) <- c("zipcode","mean.price")
 price_average$mean.price <- round(price_average$mean.price,2)
 
 # Download zip code boundaries for NYC
-url <- "https://data.cityofnewyork.us/api/views/i8iw-xf4u/files/YObIR0MbpUVA0EpQzZSq5x55FzKGM2ejSeahdvjqR20?filename=ZIP_CODE_040114.zip"
+url <- paste("https://data.cityofnewyork.us/",
+             "api/views/i8iw-xf4u/files/",
+             "YObIR0MbpUVA0EpQzZSq5x55FzKGM2ejSeahdvjqR20?",
+             "filename=ZIP_CODE_040114.zip",sep="")
 fil <- basename(url)   
 base.loc <- regexec("(?<=filename=).*[.]zip",fil,perl=TRUE)
 base.str <- substr(fil, base.loc, nchar(fil))

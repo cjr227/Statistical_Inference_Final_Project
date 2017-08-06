@@ -24,7 +24,7 @@ if(!file.exists(base.str)){
 fils <- unzip(base.str, exdir = "nyc_zip")
 
 # Read shapefiles
-nyc <- readOGR("nyc_zip", ogrListLayers(fils[1])[1], stringsAsFactors=FALSE)
+nyc <- readOGR("nyc_zip", ogrListLayers(fils[1])[1], stringsAsFactors=FALSE, verbose = FALSE)
 nyc@data$id <- rownames(nyc@data)
 nyc.points <- fortify(nyc, region="id")
 

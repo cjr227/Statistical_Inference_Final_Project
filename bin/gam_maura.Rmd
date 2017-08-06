@@ -20,17 +20,20 @@ The original baseline GAM Model included all variables which were highly signifi
 
 Next, we ran a GAM model and looked at it's RMSE as well as a testing RMSE (Average of 10 10-fold cross validation RMSEs).  We tested models with different tranformations and compared both testing and training RMSEs
 
-```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
-maura.gam<-read.csv("gam_results.csv")[,-1]
-names(maura.gam)<-c("Model", "Training RMSE", "Testing RMSE")
-kable(maura.gam, caption="Summary of Models Tested", digits=4)
+```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE,results = 'asis'}
+maura.gam <- read.csv("gam_results.csv")[,-1]
+names(maura.gam) <- c("Model", "Training RMSE", "Testing RMSE")
+#kable(maura.gam, caption="Summary of Models Tested", digits=4)
+pander(maura.gam, caption="Summary of Models Tested", digits=4, split.table = Inf)
 ```
 
 We tested logs as well as smoothing parameters (on variables with ranges large enough to support them) for quantitative variables.  Most did not have a large enough/noticable effect on the testing RMSE to justify them (even if non-linearity was statistically sigificant), but a few did.  Two of the ratings variables were never significant in the model and removed (which reduced testing error).  Final model output is below:
 
-```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
-kable(read.csv("gam_parametric_anova.csv"), caption="Anova for Parametric Effects", digits=2)
-kable(read.csv("gam_nonparametric_anova.csv"), caption="Anova for Non-Parametric Effects", digits=2)
+```{r, echo=FALSE, tidy=TRUE, warning=FALSE,message=FALSE,results = 'asis'}
+kable(read.csv("gam_parametric_anova.csv"), caption="Anova for Parametric Effects", digits=2, align='l')
+kable(read.csv("gam_nonparametric_anova.csv"), caption="Anova for Non-Parametric Effects", digits=2, align='l')
+#pander(read.csv("gam_parametric_anova.csv"), caption="Anova for Parametric Effects", digits=2, split.table = Inf)
+#pander(read.csv("gam_nonparametric_anova.csv"), caption="Anova for Non-Parametric Effects", digits=2, split.table = Inf)
 ```
 
 The AIC of this model is 12,254 and the BIC is 12,430.  (Without non-parametric effects, AIC = 12,467 and BIC = 12,642.)  All variables and effects are statistically significant.

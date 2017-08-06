@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 #### General Data Cleaning
-```{r, cache=TRUE, tidy=TRUE, warning=FALSE, message=FALSE}
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
 # Read in Airbnb listings data
 listings <- read.csv("listings.csv", stringsAsFactors = FALSE)
 
@@ -133,7 +133,7 @@ air.bnb.dataset$price.per.room <- air.bnb.dataset$price/(air.bnb.dataset$bedroom
 ```
 
 #### Number of hosts in a listing
-```{r, cache=TRUE, tidy=TRUE, warning=FALSE, message=FALSE}
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
 # Number of hosts in a listing
 
 find.all.hosts <- function(host_names){
@@ -170,7 +170,7 @@ air.bnb.dataset$host_name <- NULL
 ```
 
 #### Amenities and Host Verifications
-```{r, cache=TRUE, tidy=TRUE, warning=FALSE, message=FALSE}
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
 # Amenities and Host Verifications
 
 
@@ -198,7 +198,9 @@ air.bnb.dataset <- cbind(air.bnb.dataset, hVers)
 air.bnb.dataset$num_amenities <- num_amen
 ```
 
-```{r, cache=TRUE, tidy=TRUE, include=FALSE, warning=FALSE,message=FALSE}
+#### Distance to Closest Subway Station
+
+```{r, cache=TRUE, eval=FALSE, tidy=TRUE, warning=FALSE,message=FALSE}
 # This is the R code for calculating the distance to the closest subway station.
 # Data Source: 
 # subway stations:https://data.ny.gov/Transportation/NYC-Transit-Subway-Entrance-And-Exit-Data/i9wp-a4ja

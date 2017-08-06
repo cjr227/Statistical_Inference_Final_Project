@@ -10,7 +10,7 @@ Even though we aren't using the original neighborhoods, we would still like to u
 
 We clustered the 205 neighborhoods based on location (latitude, longitude and borough), mix of property types, and average distance to a subway station.  In a more comprehensive analysis we would test clustering based on external metrics such as population density, household income, and zoning information (% residential) or using these in the models directly.
 
-K-means was chosen as our clustering algorithm with $k=10$.  10 was chosen based on the reduction in distances from points to their cluster centers as well as cluster sizes (At least 25 listings/cluster).  After chosing *K*, we ran the algorithm a few times and chose the output with at least 25 listings per cluster (K-means will often pick a local minimum so running the algorithm a few times can give different solutions). 
+K-means was chosen as our clustering algorithm with $k=10$. 10 was chosen based on the reduction in distances from points to their cluster centers as well as cluster sizes (At least 25 listings/cluster). After choosing *K*, we ran the algorithm a few times and chose the output with at least 25 listings per cluster (K-means will often pick a local minimum so running the algorithm a few times can give different solutions). 
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 
@@ -89,7 +89,6 @@ chooseK <- as.data.frame(cbind(NumClust, Clustin, Clustbet, MC))
 qplot(NumClust,Clustin/100, data=chooseK[MC==5,])+geom_smooth(method="loess")+xlab("Number of Clusters")+ylab("Neightborhood Distance from Cluster Center")+theme(axis.text.y = element_blank())
 
 use.clusters <- kmeans(cl.data5,10)
-table(test, use.clusters$cluster[test])
 air.bnb.dataset$neighborhood_cluster <- as.factor(paste("cluster.", use.clusters$cluster[air.bnb.dataset$neighbourhood_cleansed], sep=""))
 ```
 

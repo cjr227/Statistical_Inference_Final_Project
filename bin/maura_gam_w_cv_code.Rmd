@@ -85,7 +85,11 @@ results
 
 #Work with this model and append to results
 
-g.formula <- log(price)~room_type + neighbourhood_group_cleansed + bedrooms + bathrooms + s(minimum_nights, 2) + review_scores_rating + review_scores_cleanliness + review_scores_communication + review_scores_location + review_scores_value + s(accommodates,5) + distance_in_meters
+g.formula <- log(price)~room_type + neighbourhood_group_cleansed +
+  bedrooms + bathrooms + s(minimum_nights, 2) + 
+  review_scores_rating + review_scores_cleanliness + 
+  review_scores_communication + review_scores_location + 
+  review_scores_value + s(accommodates,5) + distance_in_meters
 
 gam.2 <- gam(g.formula, data=gam.dataset)
 
@@ -99,7 +103,8 @@ RMSETest <- mean(testErr)
 RMSETrain <- sqrt(mean(gam.2$residuals^2, na.rm=TRUE))
 
 #store result (to have a record)
-results2 <-as.data.frame(cbind(c("Base - Check in Review - accuracy review"), round(RMSETrain,4), round(RMSETest,4)))
+results2 <-as.data.frame(cbind(c("Base - Check in Review - accuracy review"), 
+                               round(RMSETrain,4), round(RMSETest,4)))
 names(results2) <- c("formula", "MSE.Training","MSE.Testing")
 results <- as.data.frame(rbind(results, results2))
 
@@ -132,9 +137,12 @@ mean(eg.residual^2)
 mean(g.residual^2)
 par(mfrow=c(1,2))
 
-plot(g.predicted,g.residual, xlab="Predicted Log Price", ylab="Residual", main="Log Price", sub="MSE = 0.1")
+plot(g.predicted,g.residual, xlab="Predicted Log Price", 
+     ylab="Residual", main="Log Price", sub="MSE = 0.1")
 abline(0,0)
-plot(eg.predicted,eg.residual,  xlab="Predicted Price", ylab="Residual", xlim=c(0,2000), ylim=c(-500, 2000), main="Price", sub="MSE = 13,663")
+plot(eg.predicted,eg.residual,  xlab="Predicted Price", 
+     ylab="Residual", xlim=c(0,2000), ylim=c(-500, 2000), 
+     main="Price", sub="MSE = 13,663")
 abline(0,0)
 coef(gam.2)
 
@@ -143,19 +151,31 @@ coef(gam.2)
 
 
 
-gam.2 <- gam(price ~  review_scores_rating+  num_amenities+  number_of_reviews+  review_scores_accuracy+  review_scores_cleanliness+  review_scores_location+  distance_in_meters,  data=gam.dataset) 
+gam.2 <- gam(price ~  review_scores_rating+  num_amenities+  number_of_reviews+  
+               review_scores_accuracy+  review_scores_cleanliness+  
+               review_scores_location+  distance_in_meters,  data=gam.dataset) 
 
-gam.3 <- gam(price~   number_of_reviews+  review_scores_accuracy+  review_scores_cleanliness+  review_scores_location+  ns(review_scores_rating,4)+ #set to 4 deg of freedom 
- ns(num_amenities,4)+  ns(distance_in_meters,4),  data=gam.dataset)
+gam.3 <- gam(price~   number_of_reviews+  review_scores_accuracy+  
+               review_scores_cleanliness+  review_scores_location+  
+               ns(review_scores_rating,4)+ #set to 4 deg of freedom 
+               ns(num_amenities,4)+  ns(distance_in_meters,4),  data=gam.dataset)
 
 
-gam.4 <- gam(price~  number_of_reviews+  review_scores_accuracy+  review_scores_cleanliness+  review_scores_location+  minimum_nights+  ns(review_scores_rating,4)+ #set to 4 deg of freedom 
-ns(num_amenities,4)+  ns(distance_in_meters,4)+  host_is_superhost+ host_identity_verified+ property_type+ room_type+ bed_type, data=gam.dataset)     
+gam.4 <- gam(price~  number_of_reviews+  review_scores_accuracy+  
+               review_scores_cleanliness+  review_scores_location+  
+               minimum_nights+  ns(review_scores_rating,4)+ #set to 4 deg of freedom 
+               ns(num_amenities,4)+  ns(distance_in_meters,4)+  
+               host_is_superhost+ host_identity_verified+ property_type+ 
+               room_type+ bed_type, data=gam.dataset)     
 
 
-gam.6 <- gam(price~ number_of_reviews+ review_scores_accuracy+ review_scores_cleanliness+  review_scores_location+ minimum_nights+  ns(review_scores_rating,4)+  ns(num_amenities,4)+   ns(distance_in_meters,4)+  host_response_time+ # added in gam.6 due to Lasso results 
+gam.6 <- gam(price~ number_of_reviews+ review_scores_accuracy+ 
+               review_scores_cleanliness+  review_scores_location+ 
+               minimum_nights+  ns(review_scores_rating,4)+  ns(num_amenities,4)+ 
+               ns(distance_in_meters,4)+  host_response_time+ # added in gam.6 due to Lasso results 
               host_has_profile_pic+ # added in gam.6 due to Lasso results 
-              host_is_superhost+  host_identity_verified+  property_type+  room_type+ bed_type,  data=gam.dataset)
+              host_is_superhost+  host_identity_verified+  property_type+  
+               room_type+ bed_type,  data=gam.dataset)
 
 anova(gam.2, gam.3, test="F")
 

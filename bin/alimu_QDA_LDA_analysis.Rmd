@@ -1,6 +1,6 @@
 ---
 title: "alimu_QDA&LDA analysis"
-author: "alimu"
+author: "Alimu"
 date: "December 14, 2015"
 output: html_document
 ---

@@ -15,20 +15,28 @@ After training the model, we tested it on the testing dataset, resulting in an o
 
 ```{r, cache=TRUE, echo=FALSE, eval=TRUE, tidy=TRUE, warning=FALSE,message=FALSE}
 
+fra.selected.tree <- air.bnb.dataset[,c("host_response_rate","host_acceptance_rate","host_is_superhost","host_identity_verified","accommodates","bathrooms","bedrooms","beds","number_of_reviews","review_scores_rating","review_scores_cleanliness","review_scores_accuracy","review_scores_value","instant_bookable","reviews_per_month")]
+
+
+# Remove points that do not have superhost status labeled
+to.remove <- which(fra.selected.tree$host_is_superhost == "")
+fra.selected.tree <- fra.selected.tree[-to.remove,]
+
+fra.selected.tree <- droplevels(fra.selected.tree)
+
+train <- sample(1:nrow(listings), 26000) 
+test <- (-train)
+tree.training <- fra.selected.tree[train,]
+tree.testing <- fra.selected.tree[test,]
 
 ## Subway station distance variable is not included here
 
 #### This is using the gini index for the tree partition.
-tree.training$distance_in_meters <- NULL
-tree.testing$distance_in_meters <- NULL
 tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit)
 is_super_host.fit.gini <- predict(tree.is_super_host, tree.testing, type="class")
 gini.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
-print(gini.proportion.correct)
 
-par(xpd = TRUE)
-plot(tree.is_super_host)
-text(tree.is_super_host, use.n=TRUE)
+rpart.plot(tree.is_super_host,type=2,tweak=1.15,yesno=FALSE,space=0)
 
 
 #### This is using the information gain for the tree partition. 
@@ -36,11 +44,8 @@ text(tree.is_super_host, use.n=TRUE)
 tree.is_super_host <- rpart(tree.training$host_is_superhost ~ ., data=tree.training, method="class",na.action=na.omit,parms=list(split='information'))
 is_super_host.fit.ig <- predict(tree.is_super_host, tree.testing, type="class")
 ig.proportion.correct <- sum(tree.testing$host_is_superhost == is_super_host.fit.gini)/length(tree.testing$host_is_superhost)
-print(ig.proportion.correct)
 
-par(xpd = TRUE)
-plot(tree.is_super_host)
-text(tree.is_super_host, use.n=TRUE)
+rpart.plot(tree.is_super_host,type=2,tweak=1.1,yesno=FALSE,space=0)
 
 
 ```
